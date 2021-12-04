@@ -3,10 +3,7 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::to_vec(&[
-        "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001",
-        "00010", "01010",
-    ]);
+    let input = utils::read_lines("2021/test_day3");
     assert_eq!(part1(&input), 198);
     assert_eq!(part2(&input), 230);
 }

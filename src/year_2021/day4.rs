@@ -1,32 +1,15 @@
+#[cfg(test)]
+use crate::utils;
 use std::collections::HashSet;
 
 #[test]
-fn test_day4() {
-    let input = r#"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
-
-22 13 17 11  0
-8  2 23  4 24
-21  9 14 16  7
-6 10  3 18  5
-1 12 20 15 19
-
-3 15  0  2 22
-9 18 13 17  5
-19  8  7 25 23
-20 11 10 24  4
-14 21 16 12  6
-
-14 21 17 24  4
-10 16 15  9 19
-18  8 23 26 20
-22 11 13  6  5
-2  0 12  3  7
-"#;
-    assert_eq!(part1(input), 4512);
+fn test() {
+    let input = utils::read_file("2021/test_day4");
+    assert_eq!(part1(input.clone()), 4512);
     assert_eq!(part2(input), 1924);
 }
 
-pub fn part2(lines: &str) -> i32 {
+pub fn part2(lines: Box<String>) -> i32 {
     let (numbers, mut matrices) = parse(lines);
     let mut winners = HashSet::new();
     for i in 0..matrices.len() {
@@ -69,12 +52,13 @@ pub fn part2(lines: &str) -> i32 {
     unreachable!()
 }
 
+#[derive(Debug)]
 struct MatrixEntry {
     n: i32,
     f: bool,
 }
 
-pub fn part1(lines: &str) -> i32 {
+pub fn part1(lines: Box<String>) -> i32 {
     let (numbers, mut matrices) = parse(lines);
 
     for i in numbers {
@@ -105,7 +89,7 @@ pub fn part1(lines: &str) -> i32 {
     unreachable!()
 }
 
-fn parse(lines: &str) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
+fn parse(lines: Box<String>) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
     let lines: Vec<&str> = lines.split("\n").collect();
     let numbers = lines[0]
         .split(",")
@@ -127,6 +111,9 @@ fn parse(lines: &str) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
                 })
                 .collect(),
         );
+    }
+    if !accum.is_empty() {
+        matrices.push(accum);
     }
     (numbers, matrices)
 }

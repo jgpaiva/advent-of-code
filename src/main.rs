@@ -1,9 +1,8 @@
-use std::fs;
-
 mod year_2018;
 mod year_2021;
 
 mod utils;
+use utils::*;
 
 fn main() {
     days_2021();
@@ -19,14 +18,8 @@ fn days_2021() {
     println!("day2 part 2: {}", day2::part2(&read_lines("2021/day2")));
     println!("day3 part 1: {}", day3::part1(&read_lines("2021/day3")));
     println!("day3 part 2: {}", day3::part2(&read_lines("2021/day3")));
-    println!(
-        "day4 part 1: {}",
-        day4::part1(read_file("2021/day4").as_str())
-    );
-    println!(
-        "day4 part 2: {}",
-        day4::part2(read_file("2021/day4").as_str())
-    );
+    println!("day4 part 1: {}", day4::part1(read_file("2021/day4")));
+    println!("day4 part 2: {}", day4::part2(read_file("2021/day4")));
 }
 
 fn days_2018() {
@@ -44,15 +37,4 @@ fn days_2018() {
         day6_2018_part2(read_lines("2018/day6"), 10000)
     );
     println!("day7: {}", day7_2018(read_lines("2018/day7")));
-}
-
-fn read_file(file_name: &str) -> Box<String> {
-    Box::new(fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"))
-}
-
-fn read_lines(file_name: &str) -> Vec<String> {
-    let contents = Box::new(
-        fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"),
-    );
-    contents.lines().map(|x| x.to_string()).collect()
 }

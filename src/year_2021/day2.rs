@@ -2,15 +2,8 @@
 use crate::utils;
 
 #[test]
-fn test_day2() {
-    let input = utils::to_vec(&[
-        "forward 5",
-        "down 5",
-        "forward 8",
-        "up 3",
-        "down 8",
-        "forward 2",
-    ]);
+fn test() {
+    let input = utils::read_lines("2021/test_day2");
     assert_eq!(part2(&input), 900);
     assert_eq!(part1(&input), 150);
 }
