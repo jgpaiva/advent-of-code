@@ -23,18 +23,18 @@ fn days_2021() {
 }
 
 fn days_2018() {
-    use year_2018::days_1_to_7::*;
+    use year_2018::*;
     println!("2018");
-    println!("day1: {}", day1_2018(read_lines("2018/day1")));
-    println!("day2: {}", day2_2018(read_lines("2018/day2")));
-    println!("day2 part 2: {}", day2_2018_part2(read_lines("2018/day2")));
-    println!("day3: {}", day3_2018(read_lines("2018/day3")));
-    println!("day4: {}", day4_2018(read_lines("2018/day4")));
-    println!("day5: {}", day5_2018(read_lines("2018/day5")));
-    println!("day6: {}", day6_2018(read_lines("2018/day6")));
+    println!("day1: {}", day1::part2(read_lines("2018/day1")));
+    println!("day2 part 1: {}", day2::part1(read_lines("2018/day2")));
+    println!("day2 part 2: {}", day2::part2(read_lines("2018/day2")));
+    println!("day3: {}", day3::day3(read_lines("2018/day3")));
+    println!("day4: {}", day4::day4(read_lines("2018/day4")));
+    println!("day5: {}", day5::day5(read_lines("2018/day5")));
+    println!("day6 part 1: {}", day6::part1(read_lines("2018/day6")));
     println!(
         "day6 part 2: {}",
-        day6_2018_part2(read_lines("2018/day6"), 10000)
+        day6::part2(read_lines("2018/day6"), 10000)
     );
-    println!("day7: {}", day7_2018(read_lines("2018/day7")));
+    println!("day7 part 1: {}", day7::part1(read_lines("2018/day7")));
 }
