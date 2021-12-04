@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 
 #[cfg(test)]
@@ -6,12 +7,110 @@ use crate::utils;
 #[test]
 fn test() {
     let input = utils::read_lines("2018/test_day7");
-    assert_eq!(part1(input), "CABDFE");
+    assert_eq!(part1(&input), "CABDFE");
+    assert_eq!(part2(&input, 2, 0), 15);
+}
+
+lazy_static! {
+    static ref MAPPING: HashMap<char, usize> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        .chars()
+        .enumerate()
+        .map(|(i, v)| (v, i + 1))
+        .collect::<HashMap<char, usize>>();
+}
+
+pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
+    let input = parse(&lines);
+    let mut deps = input.deps.iter().fold(HashMap::new(), |mut accum, d| {
+        let mut v = accum.get_mut(&d.from);
+        if let None = v {
+            accum.insert(d.from, HashSet::new());
+            v = accum.get_mut(&d.from);
+        }
+        v.unwrap().insert(&d.to);
+        accum
+    });
+    let all: HashSet<char> = deps.values().flatten().map(|x| **x).collect();
+    for i in all {
+        if let None = deps.get(&i) {
+            deps.insert(i, HashSet::new());
+        }
+    }
+    let mut done: HashSet<char> = HashSet::new();
+    let mut workers: HashMap<usize, Option<(char, i32)>> =
+        (0..worker_n).map(|x| (x, None)).collect();
+    let mut time = 0;
+    loop {
+        for worker_index in 0..worker_n {
+            process_work_for_worker(
+                &mut deps,
+                worker_index,
+                &mut workers,
+                time,
+                sleep_time,
+                &mut done,
+            );
+        }
+        for worker_index in 0..worker_n {
+            get_work_for_worker(&mut deps, worker_index, &mut workers, time);
+        }
+        if workers.values().flatten().collect::<Vec<_>>().is_empty() {
+            break;
+        }
+        time += 1;
+        assert!(time < 1000);
+    }
+    time
+}
+
+fn get_work_for_worker(
+    deps: &mut HashMap<char, HashSet<&char>>,
+    worker_index: usize,
+    workers: &mut HashMap<usize, Option<(char, i32)>>,
+    time: i32,
+) {
+    let worker = workers.get_mut(&worker_index).unwrap();
+    if let None = worker {
+        for (item, deps) in &*deps {
+            if deps.is_empty() {
+                worker.replace((*item, time));
+                break;
+            }
+        }
+        if let Some((item, _)) = worker {
+            deps.remove(&item);
+        }
+    }
+}
+
+fn process_work_for_worker(
+    deps: &mut HashMap<char, HashSet<&char>>,
+    worker_index: usize,
+    workers: &mut HashMap<usize, Option<(char, i32)>>,
+    time: i32,
+    sleep_time: i32,
+    done: &mut HashSet<char>,
+) {
+    let worker = workers.get_mut(&worker_index).unwrap();
+    if let Some((item, item_ts)) = worker {
+        if is_done(time, *item, *item_ts, sleep_time) {
+            let (item, _item_ts) = worker.take().unwrap();
+            done.insert(item);
+            for (_, deps) in deps.iter_mut() {
+                deps.remove(&item);
+            }
+            deps.remove(&item);
+        }
+    }
+}
+
+fn is_done(time: i32, item: char, item_ts: i32, sleep_time: i32) -> bool {
+    time >= (item_ts + *MAPPING.get(&item).unwrap() as i32 + sleep_time)
 }
 
 #[allow(dead_code)]
-fn part1_v2(lines: Vec<String>) -> String {
-    let input = parse(lines);
+fn part1_v2(lines: &Vec<String>) -> String {
+    let input = parse(&lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
         edges.entry(dep.from).or_insert(vec![]).push(dep.to);
@@ -38,7 +137,7 @@ fn part1_v2(lines: Vec<String>) -> String {
     output.into_iter().collect()
 }
 
-pub fn part1(lines: Vec<String>) -> String {
+pub fn part1(lines: &Vec<String>) -> String {
     let input = parse(lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
@@ -123,7 +222,7 @@ struct Dep {
 #[test]
 fn test_parse() {
     assert_eq!(
-        parse(utils::to_vec(&[
+        parse(&utils::to_vec(&[
             "Step C must be finished before step A can begin.",
             "Step C must be finished before step F can begin.",
             "Step A must be finished before step B can begin.",
@@ -138,7 +237,7 @@ fn test_parse() {
     );
 }
 
-fn parse(lines: Vec<String>) -> Graph {
+fn parse(lines: &Vec<String>) -> Graph {
     Graph {
         deps: lines
             .iter()

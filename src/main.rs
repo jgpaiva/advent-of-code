@@ -36,5 +36,13 @@ fn days_2018() {
         "day6 part 2: {}",
         day6::part2(read_lines("2018/day6"), 10000)
     );
-    println!("day7 part 1: {}", day7::part1(read_lines("2018/day7")));
+    println!("day7 part 1: {}", day7::part1(&read_lines("2018/day7")));
+    println!(
+        "day7 part 2: {}",
+        day7::part2(&read_lines("2018/day7"), 5, 60)
+    );
+    println!("day8 part 1: {}", day8::part1(&read_lines("2018/day8")));
+    println!("day8 part 2: {}", day8::part2(&read_lines("2018/day8")));
+    println!("day9 part 1: {}", day9::part2(473, 70904)); // part 2 is the same as part 1, but faster
+    println!("day9 part 2: {}", day9::part2(473, 7090400));
 }
