@@ -1,418 +1,14 @@
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
-use std::fs;
 use std::str::FromStr;
 
-fn main() {
-    println!("day1_2018: {}", day1_2018(read_lines("day1_2018")));
-    println!("day2_2018: {}", day2_2018(read_lines("day2_2018")));
-    println!(
-        "day2_2018 part 2: {}",
-        day2_2018_part2(read_lines("day2_2018"))
-    );
-    println!("day3_2018: {}", day3_2018(read_lines("day3_2018")));
-    println!("day4_2018: {}", day4_2018(read_lines("day4_2018")));
-    println!("day5_2018: {}", day5_2018(read_lines("day5_2018")));
-    println!("day6_2018: {}", day6_2018(read_lines("day6_2018")));
-    println!(
-        "day6_2018 part 2: {}",
-        day6_2018_part2(read_lines("day6_2018"), 10000)
-    );
-    println!("day7_2018: {}", day7_2018(read_lines("day7_2018")));
-    println!("day1_2021: {}", day1_2021(read_lines("day1_2021")));
-    println!(
-        "day1_part2_2021: {}",
-        day1_part2_2021(read_lines("day1_2021"))
-    );
-    println!("day2_2021: {}", day2_2021(read_lines("day2_2021")));
-    println!(
-        "day2_part2_2021: {}",
-        day2_part2_2021(read_lines("day2_2021"))
-    );
-    println!("day3_2021: {}", day3_2021(read_lines("day3_2021")));
-    println!(
-        "day3_part2_2021: {}",
-        day3_part2_2021(read_lines("day3_2021"))
-    );
-    println!("day4_2021: {}", day4_2021(read_file("day4_2021").as_str()));
-    println!(
-        "day4_part2_2021: {}",
-        day4_part2_2021(read_file("day4_2021").as_str())
-    );
-}
-
-#[test]
-fn test_day4_2021() {
-    let input = r#"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
-
-22 13 17 11  0
-8  2 23  4 24
-21  9 14 16  7
-6 10  3 18  5
-1 12 20 15 19
-
-3 15  0  2 22
-9 18 13 17  5
-19  8  7 25 23
-20 11 10 24  4
-14 21 16 12  6
-
-14 21 17 24  4
-10 16 15  9 19
-18  8 23 26 20
-22 11 13  6  5
-2  0 12  3  7
-"#;
-    assert_eq!(day4_2021(input), 4512);
-    assert_eq!(day4_part2_2021(input), 1924);
-}
-
-fn day4_part2_2021(lines: &str) -> i32 {
-    let (numbers, mut matrices) = day_4_2021_parse(lines);
-    let mut winners = HashSet::new();
-    for i in 0..matrices.len() {
-        winners.insert(i);
-    }
-    let mut last;
-    for i in numbers {
-        for matrix_index in 0..matrices.len() {
-            for line in &mut matrices[matrix_index] {
-                for mut item in line {
-                    if item.n == i {
-                        item.f = true;
-                    }
-                }
-            }
-            let matrix = &matrices[matrix_index];
-            for line in matrix {
-                if line.iter().map(|x| x.f).all(|x| x) {
-                    // found winner
-                    winners.remove(&matrix_index);
-                    last = matrix_index;
-                    if winners.len() == 0 {
-                        return calc_winner_day_4_winner(&matrices[last], i);
-                    }
-                }
-            }
-            for col_num in 0..matrix.len() {
-                let col: Vec<&MatrixEntry> = matrix.iter().map(|line| &line[col_num]).collect();
-                if col.iter().map(|x| x.f).all(|x| x) {
-                    // found winner
-                    winners.remove(&matrix_index);
-                    last = matrix_index;
-                    if winners.len() == 0 {
-                        return calc_winner_day_4_winner(&matrices[last], i);
-                    }
-                }
-            }
-        }
-    }
-    unreachable!()
-}
-
-struct MatrixEntry {
-    n: i32,
-    f: bool,
-}
-
-fn day4_2021(lines: &str) -> i32 {
-    let (numbers, mut matrices) = day_4_2021_parse(lines);
-
-    for i in numbers {
-        for matrix in 0..matrices.len() {
-            for line in &mut matrices[matrix] {
-                for mut item in line {
-                    if item.n == i {
-                        item.f = true;
-                    }
-                }
-            }
-            for line in &matrices[matrix] {
-                if line.iter().map(|x| x.f).all(|x| x) {
-                    // found winner
-                    return calc_winner_day_4_winner(&matrices[matrix], i);
-                }
-            }
-            for col_num in 0..matrices[matrix].len() {
-                let col: Vec<&MatrixEntry> =
-                    matrices[matrix].iter().map(|line| &line[col_num]).collect();
-                if col.iter().map(|x| x.f).all(|x| x) {
-                    // found winner
-                    return calc_winner_day_4_winner(&matrices[matrix], i);
-                }
-            }
-        }
-    }
-    unreachable!()
-}
-
-fn day_4_2021_parse(lines: &str) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
-    let lines: Vec<&str> = lines.split("\n").collect();
-    let numbers = lines[0]
-        .split(",")
-        .map(|x| x.parse().unwrap())
-        .collect::<Vec<i32>>();
-    let mut matrices: Vec<Vec<Vec<MatrixEntry>>> = vec![];
-    let mut accum: Vec<Vec<MatrixEntry>> = vec![];
-    for line in lines.into_iter().skip(2).collect::<Vec<&str>>() {
-        if line.is_empty() {
-            matrices.push(accum);
-            accum = vec![];
-            continue;
-        }
-        accum.push(
-            line.split_whitespace()
-                .map(|n| MatrixEntry {
-                    n: n.parse().unwrap(),
-                    f: false,
-                })
-                .collect(),
-        );
-    }
-    (numbers, matrices)
-}
-
-fn calc_winner_day_4_winner(matrix: &Vec<Vec<MatrixEntry>>, i: i32) -> i32 {
-    let sum: i32 = matrix
-        .into_iter()
-        .flat_map(|line| line.into_iter().map(|x| if x.f { 0 } else { x.n }))
-        .sum();
-    sum * i
-}
-
-#[test]
-fn test_day3_part2_2021() {
-    assert_eq!(
-        day3_part2_2021(to_vec(&[
-            "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000",
-            "11001", "00010", "01010",
-        ])),
-        230
-    )
-}
-
-fn day3_part2_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.chars().collect::<Vec<char>>())
-        .collect::<Vec<_>>();
-    let oxygen: Vec<Vec<char>> = (0..lines[0].len()).fold(lines.clone(), |lines, i| {
-        if lines.len() == 1 {
-            return lines;
-        };
-        let zeroes = lines.iter().map(|x| x[i]).filter(|x| *x == '0').count();
-        let most_common = if zeroes > lines.len() / 2 { '0' } else { '1' };
-        lines
-            .into_iter()
-            .filter(|line| line[i] == most_common)
-            .collect::<Vec<Vec<char>>>()
-    });
-    let co2: Vec<Vec<char>> = (0..lines[0].len()).fold(lines, |lines, i| {
-        if lines.len() == 1 {
-            return lines;
-        };
-        let zeroes = lines.iter().map(|x| x[i]).filter(|x| *x == '0').count();
-        let most_common = if zeroes > lines.len() / 2 { '0' } else { '1' };
-        lines
-            .into_iter()
-            .filter(|line| line[i] != most_common)
-            .collect::<Vec<Vec<char>>>()
-    });
-
-    let oxygen = i32::from_str_radix(oxygen[0].iter().collect::<String>().as_str(), 2).unwrap();
-    let co2 = i32::from_str_radix(co2[0].iter().collect::<String>().as_str(), 2).unwrap();
-    oxygen * co2
-}
-
-#[test]
-fn test_day3_2021() {
-    assert_eq!(
-        day3_2021(to_vec(&[
-            "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000",
-            "11001", "00010", "01010",
-        ])),
-        198
-    )
-}
-
-fn day3_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.chars().collect::<Vec<char>>())
-        .collect::<Vec<_>>();
-    let gamma: String = (0..lines[0].len())
-        .map(|i| {
-            let ones = lines.iter().map(|x| x[i]).filter(|x| *x == '1').count();
-            if ones > lines.len() / 2 {
-                '1'
-            } else {
-                '0'
-            }
-        })
-        .collect();
-    let epsilon: String = gamma
-        .chars()
-        .map(|x| if x == '1' { '0' } else { '1' })
-        .collect();
-
-    let gamma = i32::from_str_radix(gamma.as_str(), 2).unwrap();
-    let epsilon = i32::from_str_radix(epsilon.as_str(), 2).unwrap();
-    gamma * epsilon
-}
-
-#[test]
-fn test_day2_part2_2021() {
-    assert_eq!(
-        day2_part2_2021(to_vec(&[
-            "forward 5",
-            "down 5",
-            "forward 8",
-            "up 3",
-            "down 8",
-            "forward 2",
-        ])),
-        900
-    )
-}
-
-fn day2_part2_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.split_once(" ").unwrap())
-        .map(|(c, v)| match c {
-            "forward" => Day5_2021Commands::Forward(v.parse().unwrap()),
-            "down" => Day5_2021Commands::Down(v.parse().unwrap()),
-            "up" => Day5_2021Commands::Up(v.parse().unwrap()),
-            _ => unreachable!(),
-        })
-        .collect::<Vec<_>>();
-    let mut horizontal = 0;
-    let mut vertical = 0;
-    let mut aim = 0;
-    for i in lines {
-        match i {
-            Day5_2021Commands::Forward(v) => {
-                horizontal += v;
-                vertical += aim * v
-            }
-            Day5_2021Commands::Down(v) => aim += v,
-            Day5_2021Commands::Up(v) => aim -= v,
-        }
-    }
-    horizontal * vertical
-}
-
-#[test]
-fn test_day2_2021() {
-    assert_eq!(
-        day2_2021(to_vec(&[
-            "forward 5",
-            "down 5",
-            "forward 8",
-            "up 3",
-            "down 8",
-            "forward 2",
-        ])),
-        150
-    )
-}
-
-enum Day5_2021Commands {
-    Forward(i32),
-    Down(i32),
-    Up(i32),
-}
-
-fn day2_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.split_once(" ").unwrap())
-        .map(|(c, v)| match c {
-            "forward" => Day5_2021Commands::Forward(v.parse().unwrap()),
-            "down" => Day5_2021Commands::Down(v.parse().unwrap()),
-            "up" => Day5_2021Commands::Up(v.parse().unwrap()),
-            _ => unreachable!(),
-        })
-        .collect::<Vec<_>>();
-    let mut horizontal = 0;
-    let mut vertical = 0;
-    for i in lines {
-        match i {
-            Day5_2021Commands::Forward(v) => horizontal += v,
-            Day5_2021Commands::Down(v) => vertical += v,
-            Day5_2021Commands::Up(v) => vertical -= v,
-        }
-    }
-    horizontal * vertical
-}
-
-#[test]
-fn test_day1_part2_2021() {
-    assert_eq!(
-        day1_part2_2021(to_vec(&[
-            "199", "200", "208", "210", "200", "207", "240", "269", "260", "263",
-        ])),
-        5
-    )
-}
-
-fn day1_part2_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.parse())
-        .collect::<Result<Vec<i32>, _>>()
-        .unwrap();
-    let lines = lines
-        .iter()
-        .zip(lines.iter().skip(1))
-        .zip(lines.iter().skip(2))
-        .map(|((v1, v2), v3)| v1 + v2 + v3)
-        .collect::<Vec<i32>>();
-
-    let mut prev = None;
-    let mut res = 0;
-    for i in lines {
-        if let Some(prev) = prev.replace(i) {
-            if prev < i {
-                res = res + 1;
-            }
-        }
-    }
-    res
-}
-
-#[test]
-fn test_day1_2021() {
-    assert_eq!(
-        day1_2021(to_vec(&[
-            "199", "200", "208", "210", "200", "207", "240", "269", "260", "263",
-        ])),
-        7
-    )
-}
-
-fn day1_2021(lines: Vec<String>) -> i32 {
-    let lines = lines
-        .iter()
-        .map(|x| x.parse())
-        .collect::<Result<Vec<i32>, _>>()
-        .unwrap();
-    let mut prev = None;
-    let mut res = 0;
-    for i in lines {
-        if let Some(prev) = prev.replace(i) {
-            if prev < i {
-                res = res + 1;
-            }
-        }
-    }
-    res
-}
+#[path = "utils.rs"]
+mod utils;
 
 #[test]
 fn test_day7_2018() {
     assert_eq!(
-        day7_2018(to_vec(&[
+        day7_2018(utils::to_vec(&[
             "Step C must be finished before step A can begin.",
             "Step C must be finished before step F can begin.",
             "Step A must be finished before step B can begin.",
@@ -453,7 +49,7 @@ fn day7_2018_v2(lines: Vec<String>) -> String {
     output.into_iter().collect()
 }
 
-fn day7_2018(lines: Vec<String>) -> String {
+pub fn day7_2018(lines: Vec<String>) -> String {
     let input = day7_2018_parse(lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
@@ -538,7 +134,7 @@ struct Dep {
 #[test]
 fn test_day7_2018_parse() {
     assert_eq!(
-        day7_2018_parse(to_vec(&[
+        day7_2018_parse(utils::to_vec(&[
             "Step C must be finished before step A can begin.",
             "Step C must be finished before step F can begin.",
             "Step A must be finished before step B can begin.",
@@ -579,14 +175,14 @@ fn day7_2018_parse(lines: Vec<String>) -> day7_2018_Graph {
 fn test_day6_2018_part2() {
     assert_eq!(
         day6_2018_part2(
-            to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"]),
+            utils::to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"]),
             32
         ),
         "16"
     );
 }
 
-fn day6_2018_part2(lines: Vec<String>, n: i32) -> String {
+pub fn day6_2018_part2(lines: Vec<String>, n: i32) -> String {
     let map = day6_2018_parse(lines);
     let min_x = map.v.iter().map(|p| p.x).min().unwrap() - 1;
     let max_x = map.v.iter().map(|p| p.x).max().unwrap() + 1;
@@ -616,12 +212,14 @@ fn day6_2018_part2(lines: Vec<String>, n: i32) -> String {
 #[test]
 fn test_day6_2018() {
     assert_eq!(
-        day6_2018(to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"])),
+        day6_2018(utils::to_vec(&[
+            "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"
+        ])),
         "17"
     );
 }
 
-fn day6_2018(lines: Vec<String>) -> String {
+pub fn day6_2018(lines: Vec<String>) -> String {
     let map = day6_2018_parse(lines);
     let map = map.fill_map();
     let map_height = map.len();
@@ -671,13 +269,17 @@ struct PointMap {
 
 #[test]
 fn test_point_map_to_string() {
-    let pm = day6_2018_parse(to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"]));
+    let pm = day6_2018_parse(utils::to_vec(&[
+        "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9",
+    ]));
     assert_eq!(pm.to_string(), "AAAAA·CCCC\nAAAAA·CCCC\nAAADDECCCC\nAADDDECCCC\n··DDDEECCC\nBB·DEEEECC\nBBB·EEEE··\nBBB·EEEFFF\nBBB·EEFFFF\nBBB·FFFFFF\nBBB·FFFFFF\n")
 }
 
 #[test]
 fn test_min_distance_point() {
-    let pm = day6_2018_parse(to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"]));
+    let pm = day6_2018_parse(utils::to_vec(&[
+        "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9",
+    ]));
     assert_eq!(
         pm.min_distance_point(Point { x: 1, y: 1 }),
         Some(Point { x: 1, y: 1 })
@@ -753,7 +355,9 @@ impl Point {
 #[test]
 fn test_day6_2018_parse() {
     assert_eq!(
-        day6_2018_parse(to_vec(&["1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"])),
+        day6_2018_parse(utils::to_vec(&[
+            "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9"
+        ])),
         PointMap {
             v: vec![
                 Point { x: 1, y: 1 },
@@ -785,12 +389,12 @@ fn day6_2018_parse(lines: Vec<String>) -> PointMap {
 #[test]
 fn test_day5_2018() {
     assert_eq!(
-        day5_2018(to_vec(&["dabAcCaCBAcCcaDA"])),
+        day5_2018(utils::to_vec(&["dabAcCaCBAcCcaDA"])),
         "part 1: 10 part2: 4"
     );
 }
 
-fn day5_2018(lines: Vec<String>) -> String {
+pub fn day5_2018(lines: Vec<String>) -> String {
     let polymer = lines.into_iter().next().unwrap();
     let a_to_z = "abcdefghijklmnopqrstuvwxyz";
     let a_to_z_capital = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -845,7 +449,7 @@ fn day5_2018_react(mapping: &HashMap<char, char>, polymer: String) -> (usize, St
 #[test]
 fn test_day4_2018() {
     assert_eq!(
-        day4_2018(to_vec(&[
+        day4_2018(utils::to_vec(&[
             "[1518-11-05 00:55] wakes up",
             "[1518-11-03 00:24] falls asleep",
             "[1518-11-01 00:00] Guard #10 begins shift",
@@ -868,7 +472,7 @@ fn test_day4_2018() {
     );
 }
 
-fn day4_2018(lines: Vec<String>) -> String {
+pub fn day4_2018(lines: Vec<String>) -> String {
     #[derive(Debug)]
     struct SleepCycle {
         id: i32,
@@ -967,7 +571,7 @@ fn day4_2018(lines: Vec<String>) -> String {
 #[test]
 fn test_day4_2018_parse() {
     assert_eq!(
-        day4_2018_parse(to_vec(&[
+        day4_2018_parse(utils::to_vec(&[
             "[1518-11-01 00:00] Guard #10 begins shift",
             "[1518-11-01 00:05] falls asleep",
             "[1518-11-02 00:25] wakes up",
@@ -1113,7 +717,7 @@ fn day4_2018_parse(lines: Vec<String>) -> Vec<day4_2018Input> {
 #[test]
 fn test_day3_2018() {
     assert_eq!(
-        day3_2018(to_vec(&[
+        day3_2018(utils::to_vec(&[
             "#1 @ 1,3: 4x4",
             "#2 @ 3,1: 4x4",
             "#3 @ 5,5: 2x2",
@@ -1123,7 +727,7 @@ fn test_day3_2018() {
     );
 }
 
-fn day3_2018(lines: Vec<String>) -> String {
+pub fn day3_2018(lines: Vec<String>) -> String {
     let lines = day3_2018_parse(lines);
     let mut intersections = vec![];
     let mut ids_with_intersections = HashSet::new();
@@ -1332,7 +936,11 @@ impl Square {
 #[test]
 fn test_day3_2018_parse() {
     assert_eq!(
-        day3_2018_parse(to_vec(&["#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"])),
+        day3_2018_parse(utils::to_vec(&[
+            "#1 @ 1,3: 4x4",
+            "#2 @ 3,1: 4x4",
+            "#3 @ 5,5: 2x2"
+        ])),
         vec![
             day3_2018Input {
                 id: 1,
@@ -1376,14 +984,14 @@ fn day3_2018_parse(lines: Vec<String>) -> Vec<day3_2018Input> {
 #[test]
 fn test_day2_2018() {
     assert_eq!(
-        day2_2018(to_vec(&[
+        day2_2018(utils::to_vec(&[
             "abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab",
         ])),
         "12"
     );
 }
 
-fn day2_2018(lines: Vec<String>) -> String {
+pub fn day2_2018(lines: Vec<String>) -> String {
     let (two_letter, three_letter) =
         lines
             .iter()
@@ -1397,20 +1005,20 @@ fn day2_2018(lines: Vec<String>) -> String {
 #[test]
 fn test_day2_2018_part2() {
     assert_eq!(
-        day2_2018_part2(to_vec(&[
+        day2_2018_part2(utils::to_vec(&[
             "aaaa", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz",
         ])),
         "fgij"
     );
     assert_eq!(
-        day2_2018_part2(to_vec(&[
+        day2_2018_part2(utils::to_vec(&[
             "abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz",
         ])),
         "fgij"
     );
 }
 
-fn day2_2018_part2(lines: Vec<String>) -> String {
+pub fn day2_2018_part2(lines: Vec<String>) -> String {
     let mut h = HashSet::new();
     for line in lines {
         let line = line.chars().collect::<Vec<_>>();
@@ -1491,10 +1099,10 @@ fn day2_2018_aux(s: &String) -> (i32, i32) {
 
 #[test]
 fn test_day1_2018() {
-    assert_eq!(day1_2018(to_vec(&["3", "3", "4", "-2", "-4"])), "10");
+    assert_eq!(day1_2018(utils::to_vec(&["3", "3", "4", "-2", "-4"])), "10");
 }
 
-fn day1_2018(lines: Vec<String>) -> String {
+pub fn day1_2018(lines: Vec<String>) -> String {
     let a = lines
         .iter()
         .map(|line| {
@@ -1522,20 +1130,4 @@ fn day1_2018(lines: Vec<String>) -> String {
     } else {
         unreachable!();
     }
-}
-
-#[cfg(test)]
-fn to_vec(arr: &[&str]) -> Vec<String> {
-    arr.iter().map(|x| x.to_string()).collect()
-}
-
-fn read_file(file_name: &str) -> Box<String> {
-    Box::new(fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"))
-}
-
-fn read_lines(file_name: &str) -> Vec<String> {
-    let contents = Box::new(
-        fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"),
-    );
-    contents.lines().map(|x| x.to_string()).collect()
 }
