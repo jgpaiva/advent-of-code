@@ -1,5 +1,5 @@
-#[path = "utils.rs"]
-mod utils;
+#[cfg(test)]
+use crate::utils;
 
 #[test]
 fn test() {

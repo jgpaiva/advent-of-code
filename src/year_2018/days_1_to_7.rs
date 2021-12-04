@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::str::FromStr;
 
-#[path = "utils.rs"]
-mod utils;
+#[cfg(test)]
+use crate::utils;
 
 #[test]
 fn test_day7_2018() {
