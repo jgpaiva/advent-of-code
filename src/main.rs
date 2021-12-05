@@ -33,7 +33,8 @@ fn days_2018() {
     println!("day3: {}", day3::day3(read_lines("2018/day3")));
     println!("day4: {}", day4::day4(read_lines("2018/day4")));
     println!("day5: {}", day5::day5(read_lines("2018/day5")));
-    println!("day6 part 1: {}", day6::part1(read_lines("2018/day6")));
+    // skipped because it takes a while
+    //    println!("day6 part 1: {}", day6::part1(read_lines("2018/day6")));
     println!(
         "day6 part 2: {}",
         day6::part2(read_lines("2018/day6"), 10000)
@@ -45,6 +46,12 @@ fn days_2018() {
     );
     println!("day8 part 1: {}", day8::part1(&read_lines("2018/day8")));
     println!("day8 part 2: {}", day8::part2(&read_lines("2018/day8")));
-    println!("day9 part 1: {}", day9::part2(473, 70904)); // part 2 is the same as part 1, but faster
-    println!("day9 part 2: {}", day9::part2(473, 7090400));
+    // part 2 is the same as part 1, but faster
+    println!("day9 part 1: {}", day9::part2(473, 70904));
+    // skipped because it takes a while
+    // println!("day9 part 2: {}", day9::part2(473, 7090400));
+    println!(
+        "day10 part 1: \n{}",
+        day10::part1(read_file("2018/day10"), 10304)
+    );
 }
