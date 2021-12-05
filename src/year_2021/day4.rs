@@ -31,7 +31,7 @@ pub fn part2(lines: Box<String>) -> i32 {
                     // found winner
                     winners.remove(&matrix_index);
                     last = matrix_index;
-                    if winners.len() == 0 {
+                    if winners.is_empty() {
                         return calc_winner_day_4_winner(&matrices[last], i);
                     }
                 }
@@ -42,7 +42,7 @@ pub fn part2(lines: Box<String>) -> i32 {
                     // found winner
                     winners.remove(&matrix_index);
                     last = matrix_index;
-                    if winners.len() == 0 {
+                    if winners.is_empty() {
                         return calc_winner_day_4_winner(&matrices[last], i);
                     }
                 }
@@ -90,9 +90,9 @@ pub fn part1(lines: Box<String>) -> i32 {
 }
 
 fn parse(lines: Box<String>) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
-    let lines: Vec<&str> = lines.split("\n").collect();
+    let lines: Vec<&str> = lines.split('\n').collect();
     let numbers = lines[0]
-        .split(",")
+        .split(',')
         .map(|x| x.parse().unwrap())
         .collect::<Vec<i32>>();
     let mut matrices: Vec<Vec<Vec<MatrixEntry>>> = vec![];
@@ -120,8 +120,8 @@ fn parse(lines: Box<String>) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
 
 fn calc_winner_day_4_winner(matrix: &Vec<Vec<MatrixEntry>>, i: i32) -> i32 {
     let sum: i32 = matrix
-        .into_iter()
-        .flat_map(|line| line.into_iter().map(|x| if x.f { 0 } else { x.n }))
+        .iter()
+        .flat_map(|line| line.iter().map(|x| if x.f { 0 } else { x.n }))
         .sum();
     sum * i
 }

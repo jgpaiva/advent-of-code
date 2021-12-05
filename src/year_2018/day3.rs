@@ -125,7 +125,7 @@ impl FromStr for Input {
     type Err = Box<dyn Error>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts: Vec<String> = s.split(" ").map(|x| x.to_string()).collect();
+        let parts: Vec<String> = s.split(' ').map(|x| x.to_string()).collect();
         if parts.len() != 4 {
             return Err(Box::<dyn Error>::from(format!(
                 "Line needs to have 4 parts, had {}. Line: {}",
@@ -165,10 +165,7 @@ impl Square {
     }
     fn intersect(&self, other: &Square) -> Option<Square> {
         match self.intersection_aux_x(other, false) {
-            Some((x, w)) => match self.intersection_aux_y(other, false) {
-                Some((y, h)) => Some(Square { x, y, w, h }),
-                None => None,
-            },
+            Some((x, w)) => self.intersection_aux_y(other, false).map(|(y, h)| Square { x, y, w, h }),
             None => None,
         }
     }

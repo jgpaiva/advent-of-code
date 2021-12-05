@@ -60,7 +60,7 @@ pub fn day4(lines: Vec<String>) -> String {
         .max_by(|(_id1, dur1), (_id2, dur2)| dur1.cmp(dur2))
         .unwrap();
     let best_sleeper_sleep_cycles: Vec<&SleepCycle> = (&sleep_cycles)
-        .into_iter()
+        .iter()
         .filter(|x| x.id == max_sleep_id)
         .collect();
     let mut minute_to_sleep = HashMap::new();
@@ -214,9 +214,7 @@ impl FromStr for Input {
         };
         let ts = Ts { day, minute };
         let c = rest
-            .chars()
-            .skip(1)
-            .next()
+            .chars().nth(1)
             .ok_or(format!("couldn't parse line {}", s))?;
         match c {
             'f' => Ok(Input {

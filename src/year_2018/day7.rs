@@ -20,10 +20,10 @@ lazy_static! {
 }
 
 pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
-    let input = parse(&lines);
+    let input = parse(lines);
     let mut deps = input.deps.iter().fold(HashMap::new(), |mut accum, d| {
         let mut v = accum.get_mut(&d.from);
-        if let None = v {
+        if v.is_none() {
             accum.insert(d.from, HashSet::new());
             v = accum.get_mut(&d.from);
         }
@@ -32,7 +32,7 @@ pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
     });
     let all: HashSet<char> = deps.values().flatten().map(|x| **x).collect();
     for i in all {
-        if let None = deps.get(&i) {
+        if deps.get(&i).is_none() {
             deps.insert(i, HashSet::new());
         }
     }
@@ -54,7 +54,7 @@ pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
         for worker_index in 0..worker_n {
             get_work_for_worker(&mut deps, worker_index, &mut workers, time);
         }
-        if workers.values().flatten().collect::<Vec<_>>().is_empty() {
+        if workers.values().flatten().next().is_none() {
             break;
         }
         time += 1;
@@ -70,7 +70,7 @@ fn get_work_for_worker(
     time: i32,
 ) {
     let worker = workers.get_mut(&worker_index).unwrap();
-    if let None = worker {
+    if worker.is_none() {
         for (item, deps) in &*deps {
             if deps.is_empty() {
                 worker.replace((*item, time));
@@ -78,7 +78,7 @@ fn get_work_for_worker(
             }
         }
         if let Some((item, _)) = worker {
-            deps.remove(&item);
+            deps.remove(item);
         }
     }
 }
@@ -110,7 +110,7 @@ fn is_done(time: i32, item: char, item_ts: i32, sleep_time: i32) -> bool {
 
 #[allow(dead_code)]
 fn part1_v2(lines: &Vec<String>) -> String {
-    let input = parse(&lines);
+    let input = parse(lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
         edges.entry(dep.from).or_insert(vec![]).push(dep.to);
@@ -122,8 +122,8 @@ fn part1_v2(lines: &Vec<String>) -> String {
         .flat_map(|Dep { from, to }| vec![*from, *to])
         .collect();
     while !open_nodes.is_empty() {
-        let mut open_nodes_sorted: Vec<char> = open_nodes.iter().map(|x| *x).collect();
-        open_nodes_sorted.sort();
+        let mut open_nodes_sorted: Vec<char> = open_nodes.iter().copied().collect();
+        open_nodes_sorted.sort_unstable();
         let current_node = open_nodes_sorted.into_iter().next().unwrap();
         let mut visiting: HashSet<char> = HashSet::new();
         visit(
@@ -164,7 +164,7 @@ pub fn part1(lines: &Vec<String>) -> String {
             })
             .map(|(k, _v)| *k)
             .collect();
-        candidates.sort();
+        candidates.sort_unstable();
         let node = candidates[0];
         output.push(node);
         remaining_nodes.remove(&node);
@@ -194,10 +194,9 @@ fn visit(
     let mut node_s_edges: Vec<char> = edges
         .get(&node)
         .unwrap_or(&vec![])
-        .iter()
-        .map(|x| *x)
+        .iter().copied()
         .collect();
-    node_s_edges.sort();
+    node_s_edges.sort_unstable();
     for node in node_s_edges {
         visit(node, visiting, open_nodes, output, edges);
     }

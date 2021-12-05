@@ -39,11 +39,11 @@ pub fn metadata_for_sub_tree(node: usize, input: &Vec<i32>) -> (usize, usize, us
         );
     }
     let mut current_child = node + 2;
-    let mut child_metadata = 0 as usize;
+    let mut child_metadata = 0_usize;
     let mut child_metadata_v2 = vec![];
     let mut child_size = 0;
     for _ in 0..n_children {
-        let (size, metadata, metadata_v2) = metadata_for_sub_tree(current_child, &input);
+        let (size, metadata, metadata_v2) = metadata_for_sub_tree(current_child, input);
         current_child += size;
         child_metadata += metadata as usize;
         child_size += size;

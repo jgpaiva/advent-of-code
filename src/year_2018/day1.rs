@@ -18,11 +18,11 @@ pub fn part2(lines: Vec<String>) -> String {
         })
         .cycle()
         .try_fold(
-            (|| {
+            {
                 let mut v = HashSet::new();
                 v.insert(0);
                 (v, 0)
-            })(),
+            },
             |(mut accum, last), v| {
                 let next = last + v;
                 if accum.insert(next) {

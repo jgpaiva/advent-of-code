@@ -51,7 +51,7 @@ pub fn part1(lines: Vec<String>) -> String {
         .iter()
         .enumerate()
         .flat_map(|(i, line)| {
-            line.into_iter().enumerate().map(move |(j, item)| {
+            line.iter().enumerate().map(move |(j, item)| {
                 if i == 0 || i == map_height - 1 || j == 0 || j == map_width - 1 {
                     *item
                 } else {

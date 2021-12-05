@@ -80,7 +80,7 @@ fn test_aux() {
 
 fn aux(s: &String) -> (i32, i32) {
     let mut sorted = s.chars().collect::<Vec<_>>();
-    sorted.sort();
+    sorted.sort_unstable();
     let mut two_letter = 0;
     let mut three_letter = 0;
     let mut i = 0;

@@ -26,7 +26,7 @@ pub fn part2(lines: &Vec<String>) -> i32 {
     for i in lines {
         if let Some(prev) = prev.replace(i) {
             if prev < i {
-                res = res + 1;
+                res += 1;
             }
         }
     }
@@ -44,7 +44,7 @@ pub fn part1(lines: &Vec<String>) -> i32 {
     for i in lines {
         if let Some(prev) = prev.replace(i) {
             if prev < i {
-                res = res + 1;
+                res += 1;
             }
         }
     }
