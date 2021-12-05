@@ -54,4 +54,7 @@ fn days_2018() {
         "day10 part 1: \n{}",
         day10::part1(read_file("2018/day10"), 10304)
     );
+    println!("day11 part 1: {:?}", day11::part1(1788));
+    // skipped because it takes a while
+    // println!("day11 part 2: {:?}", day11::part2(1788));
 }

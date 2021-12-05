@@ -42,6 +42,7 @@ fn test_part1() {
     assert_eq!(part1(input), "17");
 }
 
+#[allow(dead_code)]
 pub fn part1(lines: Vec<String>) -> String {
     let map = parse(lines);
     let map = map.fill_map();
