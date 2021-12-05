@@ -78,13 +78,14 @@ fn test_aux() {
     assert_eq!(aux(&"caaaabb".to_string()), (1, 0));
 }
 
-fn aux(s: &String) -> (i32, i32) {
+fn aux(s: &str) -> (i32, i32) {
     let mut sorted = s.chars().collect::<Vec<_>>();
     sorted.sort_unstable();
     let mut two_letter = 0;
     let mut three_letter = 0;
     let mut i = 0;
     while i < sorted.len() {
+        #[allow(clippy::if_same_then_else)]
         if sorted.len() == i + 1 {
             //done, nothing else to check
             i += 1;

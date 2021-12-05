@@ -16,13 +16,10 @@ pub fn day3(lines: Vec<String>) -> String {
     for (i, line) in lines.iter().enumerate() {
         for (j, other_line) in lines.iter().enumerate() {
             if j > i {
-                match line.square.intersect(&other_line.square) {
-                    Some(intersection) => {
-                        ids_with_intersections.insert(line.id);
-                        ids_with_intersections.insert(other_line.id);
-                        intersections.push(intersection);
-                    }
-                    _ => {}
+                if let Some(intersection) = line.square.intersect(&other_line.square) {
+                    ids_with_intersections.insert(line.id);
+                    ids_with_intersections.insert(other_line.id);
+                    intersections.push(intersection);
                 }
             }
         }
@@ -124,13 +121,13 @@ struct Input {
 impl FromStr for Input {
     type Err = Box<dyn Error>;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts: Vec<String> = s.split(' ').map(|x| x.to_string()).collect();
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        let parts: Vec<String> = str.split(' ').map(|x| x.to_string()).collect();
         if parts.len() != 4 {
             return Err(Box::<dyn Error>::from(format!(
                 "Line needs to have 4 parts, had {}. Line: {}",
                 parts.len(),
-                s
+                str
             )));
         }
         let (x, y) = parts[2].split_once(",").ok_or("couldn't parse x and y")?;
@@ -165,7 +162,10 @@ impl Square {
     }
     fn intersect(&self, other: &Square) -> Option<Square> {
         match self.intersection_aux_x(other, false) {
-            Some((x, w)) => self.intersection_aux_y(other, false).map(|(y, h)| Square { x, y, w, h }),
+            Some((x, w)) => {
+                self.intersection_aux_y(other, false)
+                    .map(|(y, h)| Square { x, y, w, h })
+            }
             None => None,
         }
     }

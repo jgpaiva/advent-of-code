@@ -9,7 +9,7 @@ fn test() {
     assert_eq!(part2(input), 1924);
 }
 
-pub fn part2(lines: Box<String>) -> i32 {
+pub fn part2(lines: String) -> i32 {
     let (numbers, mut matrices) = parse(lines);
     let mut winners = HashSet::new();
     for i in 0..matrices.len() {
@@ -17,16 +17,15 @@ pub fn part2(lines: Box<String>) -> i32 {
     }
     let mut last;
     for i in numbers {
-        for matrix_index in 0..matrices.len() {
-            for line in &mut matrices[matrix_index] {
+        for (matrix_index, matrix) in matrices.iter_mut().enumerate() {
+            for line in matrix.iter_mut() {
                 for mut item in line {
                     if item.n == i {
                         item.f = true;
                     }
                 }
             }
-            let matrix = &matrices[matrix_index];
-            for line in matrix {
+            for line in matrix.iter() {
                 if line.iter().map(|x| x.f).all(|x| x) {
                     // found winner
                     winners.remove(&matrix_index);
@@ -58,30 +57,29 @@ struct MatrixEntry {
     f: bool,
 }
 
-pub fn part1(lines: Box<String>) -> i32 {
+pub fn part1(lines: String) -> i32 {
     let (numbers, mut matrices) = parse(lines);
 
     for i in numbers {
-        for matrix in 0..matrices.len() {
-            for line in &mut matrices[matrix] {
+        for matrix in matrices.iter_mut() {
+            for line in matrix.iter_mut() {
                 for mut item in line {
                     if item.n == i {
                         item.f = true;
                     }
                 }
             }
-            for line in &matrices[matrix] {
+            for line in matrix.iter() {
                 if line.iter().map(|x| x.f).all(|x| x) {
                     // found winner
-                    return calc_winner_day_4_winner(&matrices[matrix], i);
+                    return calc_winner_day_4_winner(matrix, i);
                 }
             }
-            for col_num in 0..matrices[matrix].len() {
-                let col: Vec<&MatrixEntry> =
-                    matrices[matrix].iter().map(|line| &line[col_num]).collect();
+            for col_num in 0..matrix.len() {
+                let col: Vec<&MatrixEntry> = matrix.iter().map(|line| &line[col_num]).collect();
                 if col.iter().map(|x| x.f).all(|x| x) {
                     // found winner
-                    return calc_winner_day_4_winner(&matrices[matrix], i);
+                    return calc_winner_day_4_winner(matrix, i);
                 }
             }
         }
@@ -89,7 +87,7 @@ pub fn part1(lines: Box<String>) -> i32 {
     unreachable!()
 }
 
-fn parse(lines: Box<String>) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
+fn parse(lines: String) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
     let lines: Vec<&str> = lines.split('\n').collect();
     let numbers = lines[0]
         .split(',')
@@ -118,7 +116,7 @@ fn parse(lines: Box<String>) -> (Vec<i32>, Vec<Vec<Vec<MatrixEntry>>>) {
     (numbers, matrices)
 }
 
-fn calc_winner_day_4_winner(matrix: &Vec<Vec<MatrixEntry>>, i: i32) -> i32 {
+fn calc_winner_day_4_winner(matrix: &[Vec<MatrixEntry>], i: i32) -> i32 {
     let sum: i32 = matrix
         .iter()
         .flat_map(|line| line.iter().map(|x| if x.f { 0 } else { x.n }))

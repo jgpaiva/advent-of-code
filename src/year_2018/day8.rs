@@ -8,7 +8,7 @@ fn test() {
     assert_eq!(part2(&input), 66);
 }
 
-pub fn part2(lines: &Vec<String>) -> usize {
+pub fn part2(lines: &[String]) -> usize {
     let input: Vec<i32> = lines[0]
         .split_whitespace()
         .map(|x| x.parse().unwrap())
@@ -18,7 +18,7 @@ pub fn part2(lines: &Vec<String>) -> usize {
     metadata
 }
 
-pub fn part1(lines: &Vec<String>) -> usize {
+pub fn part1(lines: &[String]) -> usize {
     let input: Vec<i32> = lines[0]
         .split_whitespace()
         .map(|x| x.parse().unwrap())
@@ -28,7 +28,7 @@ pub fn part1(lines: &Vec<String>) -> usize {
     metadata
 }
 
-pub fn metadata_for_sub_tree(node: usize, input: &Vec<i32>) -> (usize, usize, usize) {
+pub fn metadata_for_sub_tree(node: usize, input: &[i32]) -> (usize, usize, usize) {
     let n_children = input[node] as usize;
     let n_metadata = input[node + 1] as usize;
     if n_children == 0 {

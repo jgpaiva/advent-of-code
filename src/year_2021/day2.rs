@@ -8,7 +8,7 @@ fn test() {
     assert_eq!(part1(&input), 150);
 }
 
-pub fn part2(lines: &Vec<String>) -> i32 {
+pub fn part2(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.split_once(" ").unwrap())
@@ -41,7 +41,7 @@ enum Day5Commands {
     Up(i32),
 }
 
-pub fn part1(lines: &Vec<String>) -> i32 {
+pub fn part1(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.split_once(" ").unwrap())

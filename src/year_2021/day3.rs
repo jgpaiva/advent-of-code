@@ -8,7 +8,7 @@ fn test() {
     assert_eq!(part2(&input), 230);
 }
 
-pub fn part2(lines: &Vec<String>) -> i32 {
+pub fn part2(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.chars().collect::<Vec<char>>())
@@ -41,7 +41,7 @@ pub fn part2(lines: &Vec<String>) -> i32 {
     oxygen * co2
 }
 
-pub fn part1(lines: &Vec<String>) -> i32 {
+pub fn part1(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.chars().collect::<Vec<char>>())

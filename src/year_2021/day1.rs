@@ -8,7 +8,7 @@ fn test() {
     assert_eq!(part2(&input), 5);
 }
 
-pub fn part2(lines: &Vec<String>) -> i32 {
+pub fn part2(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.parse())
@@ -33,7 +33,7 @@ pub fn part2(lines: &Vec<String>) -> i32 {
     res
 }
 
-pub fn part1(lines: &Vec<String>) -> i32 {
+pub fn part1(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
         .map(|x| x.parse())

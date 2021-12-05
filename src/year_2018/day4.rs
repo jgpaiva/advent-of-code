@@ -77,7 +77,9 @@ pub fn day4(lines: Vec<String>) -> String {
     let mut sleeper_per_minute: HashMap<i32, HashMap<i32, i32>> = HashMap::new();
     for cycle in &sleep_cycles {
         for minute in cycle.start..cycle.end {
-            let per_id_counter = sleeper_per_minute.entry(minute).or_insert(HashMap::new());
+            let per_id_counter = sleeper_per_minute
+                .entry(minute)
+                .or_insert_with(HashMap::new);
             let counter = per_id_counter.entry(cycle.id).or_insert(0);
             *counter += 1;
         }
@@ -214,7 +216,8 @@ impl FromStr for Input {
         };
         let ts = Ts { day, minute };
         let c = rest
-            .chars().nth(1)
+            .chars()
+            .nth(1)
             .ok_or(format!("couldn't parse line {}", s))?;
         match c {
             'f' => Ok(Input {

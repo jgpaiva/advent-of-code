@@ -6,12 +6,11 @@ pub fn to_vec(arr: &[&str]) -> Vec<String> {
 }
 
 pub fn read_lines(file_name: &str) -> Vec<String> {
-    let contents = Box::new(
-        fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"),
-    );
+    let contents =
+        fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file");
     contents.lines().map(|x| x.to_string()).collect()
 }
 
-pub fn read_file(file_name: &str) -> Box<String> {
-    Box::new(fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file"))
+pub fn read_file(file_name: &str) -> String {
+    fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file")
 }

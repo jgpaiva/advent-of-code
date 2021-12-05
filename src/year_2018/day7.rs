@@ -19,22 +19,17 @@ lazy_static! {
         .collect::<HashMap<char, usize>>();
 }
 
-pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
+pub fn part2(lines: &[String], worker_n: usize, sleep_time: i32) -> i32 {
     let input = parse(lines);
     let mut deps = input.deps.iter().fold(HashMap::new(), |mut accum, d| {
-        let mut v = accum.get_mut(&d.from);
-        if v.is_none() {
-            accum.insert(d.from, HashSet::new());
-            v = accum.get_mut(&d.from);
-        }
-        v.unwrap().insert(&d.to);
+        accum
+            .entry(d.from)
+            .or_insert_with(HashSet::new)
+            .insert(d.to);
         accum
     });
-    let all: HashSet<char> = deps.values().flatten().map(|x| **x).collect();
-    for i in all {
-        if deps.get(&i).is_none() {
-            deps.insert(i, HashSet::new());
-        }
+    for i in deps.values().flatten().copied().collect::<Vec<char>>() {
+        deps.entry(i).or_insert_with(HashSet::new);
     }
     let mut done: HashSet<char> = HashSet::new();
     let mut workers: HashMap<usize, Option<(char, i32)>> =
@@ -64,7 +59,7 @@ pub fn part2(lines: &Vec<String>, worker_n: usize, sleep_time: i32) -> i32 {
 }
 
 fn get_work_for_worker(
-    deps: &mut HashMap<char, HashSet<&char>>,
+    deps: &mut HashMap<char, HashSet<char>>,
     worker_index: usize,
     workers: &mut HashMap<usize, Option<(char, i32)>>,
     time: i32,
@@ -84,7 +79,7 @@ fn get_work_for_worker(
 }
 
 fn process_work_for_worker(
-    deps: &mut HashMap<char, HashSet<&char>>,
+    deps: &mut HashMap<char, HashSet<char>>,
     worker_index: usize,
     workers: &mut HashMap<usize, Option<(char, i32)>>,
     time: i32,
@@ -109,11 +104,11 @@ fn is_done(time: i32, item: char, item_ts: i32, sleep_time: i32) -> bool {
 }
 
 #[allow(dead_code)]
-fn part1_v2(lines: &Vec<String>) -> String {
+fn part1_v2(lines: &[String]) -> String {
     let input = parse(lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
-        edges.entry(dep.from).or_insert(vec![]).push(dep.to);
+        edges.entry(dep.from).or_insert_with(Vec::new).push(dep.to);
     }
     let mut output: Vec<char> = vec![];
     let mut open_nodes: HashSet<char> = input
@@ -137,13 +132,13 @@ fn part1_v2(lines: &Vec<String>) -> String {
     output.into_iter().collect()
 }
 
-pub fn part1(lines: &Vec<String>) -> String {
+pub fn part1(lines: &[String]) -> String {
     let input = parse(lines);
     let mut edges = HashMap::new();
     for dep in &input.deps {
         edges
             .entry(dep.from)
-            .or_insert(HashSet::<char>::new())
+            .or_insert_with(HashSet::<char>::new)
             .insert(dep.to);
     }
     let mut output: Vec<char> = vec![];
@@ -153,7 +148,7 @@ pub fn part1(lines: &Vec<String>) -> String {
         .flat_map(|Dep { from, to }| vec![*from, *to])
         .collect();
     for node in &remaining_nodes {
-        edges.entry(*node).or_insert(HashSet::<char>::new());
+        edges.entry(*node).or_insert_with(HashSet::<char>::new);
     }
     while !remaining_nodes.is_empty() {
         let mut candidates: Vec<char> = edges
@@ -194,7 +189,8 @@ fn visit(
     let mut node_s_edges: Vec<char> = edges
         .get(&node)
         .unwrap_or(&vec![])
-        .iter().copied()
+        .iter()
+        .copied()
         .collect();
     node_s_edges.sort_unstable();
     for node in node_s_edges {
@@ -236,7 +232,7 @@ fn test_parse() {
     );
 }
 
-fn parse(lines: &Vec<String>) -> Graph {
+fn parse(lines: &[String]) -> Graph {
     Graph {
         deps: lines
             .iter()
