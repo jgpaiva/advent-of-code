@@ -65,4 +65,12 @@ fn days_2018() {
     println!("day11 part 1: {:?}", day11::part1(1788));
     // skipped because it takes a while
     // println!("day11 part 2: {:?}", day11::part2(1788));
+    println!(
+        "day12 part 1: {}",
+        day12::part1(read_file("2018/day12"), 20)
+    );
+    // println!(
+    //     "day06 part 2: {}",
+    //     day06::part2(read_file("2021/day06"), 256)
+    // );
 }
