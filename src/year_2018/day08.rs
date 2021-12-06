@@ -3,7 +3,7 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2018/test_day8");
+    let input = utils::read_lines("2018/test_day08");
     assert_eq!(part1(&input), 138);
     assert_eq!(part2(&input), 66);
 }

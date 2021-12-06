@@ -5,11 +5,11 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2018/test_day4");
-    assert_eq!(day4(input), "part 1: 240 part2: 4455");
+    let input = utils::read_lines("2018/test_day04");
+    assert_eq!(day04(input), "part 1: 240 part2: 4455");
 }
 
-pub fn day4(lines: Vec<String>) -> String {
+pub fn day04(lines: Vec<String>) -> String {
     #[derive(Debug)]
     struct SleepCycle {
         id: i32,

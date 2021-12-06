@@ -5,11 +5,11 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2018/test_day5");
-    assert_eq!(day5(input), "part 1: 10 part2: 4");
+    let input = utils::read_lines("2018/test_day05");
+    assert_eq!(day05(input), "part 1: 10 part2: 4");
 }
 
-pub fn day5(lines: Vec<String>) -> String {
+pub fn day05(lines: Vec<String>) -> String {
     let polymer = lines.into_iter().next().unwrap();
     let a_to_z = "abcdefghijklmnopqrstuvwxyz";
     let a_to_z_capital = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

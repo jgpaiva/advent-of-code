@@ -5,11 +5,11 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2018/test_day3");
-    assert_eq!(day3(input), "part1: 5 part2: 3");
+    let input = utils::read_lines("2018/test_day03");
+    assert_eq!(day03(input), "part1: 5 part2: 3");
 }
 
-pub fn day3(lines: Vec<String>) -> String {
+pub fn day03(lines: Vec<String>) -> String {
     let lines = parse(lines);
     let mut intersections = vec![];
     let mut ids_with_intersections = HashSet::new();

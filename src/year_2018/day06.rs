@@ -5,7 +5,7 @@ use crate::utils;
 
 #[test]
 fn test_part2() {
-    let input = utils::read_lines("2018/test_day6");
+    let input = utils::read_lines("2018/test_day06");
     assert_eq!(part2(input, 32), "16");
 }
 
@@ -38,7 +38,7 @@ pub fn part2(lines: Vec<String>, n: i32) -> String {
 
 #[test]
 fn test_part1() {
-    let input = utils::read_lines("2018/test_day6");
+    let input = utils::read_lines("2018/test_day06");
     assert_eq!(part1(input), "17");
 }
 
@@ -93,14 +93,14 @@ struct PointMap {
 
 #[test]
 fn test_point_map_to_string() {
-    let input = utils::read_lines("2018/test_day6");
+    let input = utils::read_lines("2018/test_day06");
     let pm = parse(input);
     assert_eq!(pm.to_string(), "AAAAA·CCCC\nAAAAA·CCCC\nAAADDECCCC\nAADDDECCCC\n··DDDEECCC\nBB·DEEEECC\nBBB·EEEE··\nBBB·EEEFFF\nBBB·EEFFFF\nBBB·FFFFFF\nBBB·FFFFFF\n")
 }
 
 #[test]
 fn test_min_distance_point() {
-    let input = utils::read_lines("2018/test_day6");
+    let input = utils::read_lines("2018/test_day06");
     let pm = parse(input);
     assert_eq!(
         pm.min_distance_point(Point { x: 1, y: 1 }),
@@ -176,7 +176,7 @@ impl Point {
 
 #[test]
 fn test_parse() {
-    let input = utils::read_lines("2018/test_day6");
+    let input = utils::read_lines("2018/test_day06");
     assert_eq!(
         parse(input),
         PointMap {
