@@ -4,7 +4,7 @@ use crate::utils;
 #[test]
 fn test() {
     let input = utils::read_file("2018/test_day12");
-    assert_eq!(part1(input.clone(), 20), 325);
+    assert_eq!(part1(input, 20), 325);
 }
 
 // pub fn part2(input: String, days: i32) -> u64 {

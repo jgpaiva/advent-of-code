@@ -13,7 +13,7 @@ use crate::utils;
 fn test() {
     let input = utils::read_file("2018/test_day10");
     assert_eq!(
-        part1(input.clone(), 3),
+        part1(input, 3),
         r#"█···█··███
 █···█···█·
 █···█···█·
