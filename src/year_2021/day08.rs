@@ -78,7 +78,7 @@ pub fn part2(input: String) -> i32 {
 //  gggg    gggg    ....    gggg    gggg
 
 pub fn create_decoder_map(patterns: &[&str]) -> HashMap<String, i32> {
-    let mut decoder = HashMap::<String, i32>::new();
+    let mut decoder = HashMap::<i32, String>::new();
     let mut patterns: Vec<String> = patterns
         .iter()
         .map(|p| {
@@ -95,60 +95,52 @@ pub fn create_decoder_map(patterns: &[&str]) -> HashMap<String, i32> {
     decode_digit(&mut patterns, |p: &String| p.len() == 3, &mut decoder, 7);
     // 8 - has 7 segments
     decode_digit(&mut patterns, |p: &String| p.len() == 7, &mut decoder, 8);
-    let reverse_decoder = decoder
-        .iter()
-        .map(|(k, v)| (*v, k.clone()))
-        .collect::<HashMap<i32, String>>();
     // 9 - has 6 segments, includes all segments from 4
+    let four = decoder[&4].clone();
     decode_digit(
         &mut patterns,
-        |p: &String| p.len() == 6 && reverse_decoder[&4].chars().all(|x| p.contains(x)),
+        |p: &String| p.len() == 6 && four.chars().all(|x| p.contains(x)),
         &mut decoder,
         9,
     );
+    let one = decoder[&1].clone();
     // 0 - has 6 segments, includes all segments from 1
     decode_digit(
         &mut patterns,
-        |p: &String| p.len() == 6 && reverse_decoder[&1].chars().all(|x| p.contains(x)),
+        |p: &String| p.len() == 6 && one.chars().all(|x| p.contains(x)),
         &mut decoder,
         0,
     );
     // 6 - has 6 segments
     decode_digit(&mut patterns, |p: &String| p.len() == 6, &mut decoder, 6);
-    // 3 - has 5 segments, includes all segments from 1
+    // 3 - (has 5 segments,) includes all segments from 1
     decode_digit(
         &mut patterns,
-        |p: &String| p.len() == 5 && reverse_decoder[&1].chars().all(|x| p.contains(x)),
+        |p: &String| one.chars().all(|x| p.contains(x)),
         &mut decoder,
         3,
     );
-    let reverse_decoder = decoder
-        .iter()
-        .map(|(k, v)| (*v, k.clone()))
-        .collect::<HashMap<i32, String>>();
-    // 2 - has 5 segments, includes 4 segments from 9
+    let nine = decoder[&9].clone();
+    // 2 - (has 5 segments,) includes 4 segments from 9
     decode_digit(
         &mut patterns,
-        |p: &String| {
-            p.len() == 5
-                && reverse_decoder[&9]
-                    .chars()
-                    .filter(|x| p.contains(*x))
-                    .count()
-                    == 4
-        },
+        |p: &String| nine.chars().filter(|x| p.contains(*x)).count() == 4,
         &mut decoder,
         2,
     );
-    // 5 - has 5 segments
-    decode_digit(&mut patterns, |p: &String| p.len() == 5, &mut decoder, 5);
+    // 5 - (has 5 segments)
+    decode_digit(&mut patterns, |_p: &String| true, &mut decoder, 5);
+
     decoder
+        .into_iter()
+        .map(|(k, v)| (v, k))
+        .collect::<HashMap<String, i32>>()
 }
 
 fn decode_digit<F: Fn(&String) -> bool>(
     patterns: &mut Vec<String>,
     f: F,
-    decoder: &mut HashMap<String, i32>,
+    decoder: &mut HashMap<i32, String>,
     digit: i32,
 ) {
     let i = patterns
@@ -158,7 +150,7 @@ fn decode_digit<F: Fn(&String) -> bool>(
         .map(|(i, v)| (i, v.clone()))
         .unwrap();
     patterns.remove(i.0);
-    decoder.insert(i.1, digit);
+    decoder.insert(digit, i.1);
 }
 
 pub fn part1(input: String) -> usize {

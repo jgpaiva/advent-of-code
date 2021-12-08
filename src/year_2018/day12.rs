@@ -7,9 +7,10 @@ fn test() {
     assert_eq!(part1(input, 20), 325);
 }
 
-// pub fn part2(input: String, days: i32) -> u64 {
-//     todo!()
-// }
+#[allow(dead_code)]
+pub fn part2(input: String, days: i32) -> i32 {
+    part1(input, days)
+}
 
 pub fn part1(input: String, days: i32) -> i32 {
     let input: Vec<&str> = input.split_terminator('\n').collect();
