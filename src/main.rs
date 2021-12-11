@@ -38,6 +38,14 @@ fn days_2021() {
     println!("day09 part 2: {}", day09::part2(read_file("2021/day09")));
     println!("day10 part 1: {}", day10::part1(read_file("2021/day10")));
     println!("day10 part 2: {}", day10::part2(read_file("2021/day10")));
+    println!(
+        "day11 part 1: {}",
+        day11::part1(read_file("2021/day11"), 100)
+    );
+    println!(
+        "day11 part 2: {}",
+        day11::part2(read_file("2021/day11"), 1000)
+    );
 }
 
 fn days_2018() {
