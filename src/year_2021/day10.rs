@@ -14,7 +14,7 @@ pub fn part2(input: String) -> u64 {
         .map(|line| calculate_line(line).1)
         .flatten()
         .collect();
-    res.sort();
+    res.sort_unstable();
     res[res.len() / 2]
 }
 

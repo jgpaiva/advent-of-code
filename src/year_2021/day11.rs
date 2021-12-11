@@ -43,7 +43,7 @@ fn run_simulation(input: String, steps: u32) -> (u32, Option<u32>) {
         }
         if board
             .iter()
-            .flat_map(|line| line.iter().cloned().collect::<Vec<(u8, bool)>>())
+            .flat_map(|line| line.to_vec())
             .all(|(_, flash)| flash)
         {
             all_flash.get_or_insert(step);

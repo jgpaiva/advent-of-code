@@ -95,5 +95,5 @@ fn days_2018() {
     println!("day13 part 1: {:?}", day13::part1(read_file("2018/day13")));
     println!("day13 part 2: {:?}", day13::part2(read_file("2018/day13")));
     println!("day14 part 1: {:?}", day14::part1(681901));
-    println!("day14 part 1: {:?}", day14::part2(681901));
+    println!("day14 part 2: {:?}", day14::part2("681901"));
 }
