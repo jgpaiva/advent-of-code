@@ -10,41 +10,15 @@ fn test() {
     assert_eq!(part2(input.clone()), 3509);
 }
 
+#[allow(dead_code)]
 pub fn part2(input: String) -> usize {
     let edges = create_graph(input);
     let start = *edges.keys().find(|x| x.is_start).unwrap();
-    find_routes2(start, &edges, vec![start]).len()
+    find_routes(start, &edges, vec![start], part2_route_validator).len()
 }
 
-fn find_routes2(
-    current: Node,
-    edges: &HashMap<Node, Vec<Node>>,
-    route: Vec<Node>,
-) -> HashSet<Vec<Node>> {
-    if current.is_end {
-        return HashSet::from([route]);
-    }
-    let empty_vec: Vec<Node> = vec![];
-    let next = edges
-        .get(&current)
-        .unwrap_or(&empty_vec)
-        .iter()
-        .filter(|n| route_is_valid_with(&route, **n));
-    next.cloned()
-        .flat_map(|n| {
-            find_routes2(
-                n,
-                edges,
-                route.iter().cloned().chain([n].into_iter()).collect(),
-            )
-        })
-        .collect()
-}
-
-fn route_is_valid_with(route: &[Node], n: Node) -> bool {
-    if n.is_start {
-        return false;
-    }
+#[allow(dead_code)]
+fn part2_route_validator(route: &[Node], n: Node) -> bool {
     let mut counter: HashMap<Node, u32> = HashMap::new();
     for node in route
         .iter()
@@ -61,13 +35,27 @@ fn route_is_valid_with(route: &[Node], n: Node) -> bool {
 pub fn part1(input: String) -> usize {
     let edges = create_graph(input);
     let start = *edges.keys().find(|x| x.is_start).unwrap();
-    find_routes(start, &edges, vec![start]).len()
+    find_routes(start, &edges, vec![start], part1_route_validator).len()
+}
+
+fn part1_route_validator(route: &[Node], n: Node) -> bool {
+    let mut counter: HashMap<Node, u32> = HashMap::new();
+    for node in route
+        .iter()
+        .cloned()
+        .chain([n].into_iter())
+        .filter(|x| !x.is_large)
+    {
+        *(counter.entry(node).or_insert(0)) += 1
+    }
+    counter.values().into_iter().filter(|x| **x > 1).count() == 0
 }
 
 fn find_routes(
     current: Node,
     edges: &HashMap<Node, Vec<Node>>,
     route: Vec<Node>,
+    route_validator: fn(&[Node], Node) -> bool,
 ) -> HashSet<Vec<Node>> {
     if current.is_end {
         return HashSet::from([route]);
@@ -77,13 +65,14 @@ fn find_routes(
         .get(&current)
         .unwrap_or(&empty_vec)
         .iter()
-        .filter(|n| n.is_large || !route.contains(n));
+        .filter(|n| !n.is_start && route_validator(&route, **n));
     next.cloned()
         .flat_map(|n| {
             find_routes(
                 n,
                 edges,
                 route.iter().cloned().chain([n].into_iter()).collect(),
+                route_validator,
             )
         })
         .collect()
