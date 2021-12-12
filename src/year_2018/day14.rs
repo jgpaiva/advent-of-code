@@ -8,10 +8,7 @@ fn test() {
     assert_eq!(part2("92510"), 18);
 }
 
-// 681901
-// 1 means sum as 1
-// elfpos0 = 1 && elfpos1 = 0 (or vice-versa)
-
+#[allow(dead_code)]
 pub fn part2(input: &str) -> usize {
     let mut board: Vec<u8> = vec![3, 7];
     let mut elf1pos = 0;
