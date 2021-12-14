@@ -5,11 +5,13 @@ use crate::utils;
 
 #[test]
 fn test() {
-    // let input = utils::read_file("2018/test_day15");
-    // assert_eq!(part1(input), 18740);
+    let input = utils::read_file("2018/test_day15");
+    if false {
+        assert_eq!(part1(input), 18740);
+    }
 }
 
-#[allow(dead_code, unused_variables)]
+#[allow(unused_variables)]
 pub fn part2(input: String) -> u32 {
     todo!()
 }
