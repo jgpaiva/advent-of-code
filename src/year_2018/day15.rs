@@ -5,10 +5,18 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_file("2018/test_day15");
-    if false {
-        assert_eq!(part1(input), 18740);
-    }
+    let input = utils::read_file("2018/test_day15-1");
+    assert_eq!(part1(input), (27730, vec![200, 131, 59, 200]));
+    let input = utils::read_file("2018/test_day15-2");
+    assert_eq!(part1(input), (36334, vec![200, 197, 185, 200, 200]));
+    let input = utils::read_file("2018/test_day15-3");
+    assert_eq!(part1(input), (39514, vec![164, 197, 200, 98, 200]));
+    let input = utils::read_file("2018/test_day15-4");
+    assert_eq!(part1(input), (27755, vec![200, 98, 200, 95, 200]));
+    let input = utils::read_file("2018/test_day15-5");
+    assert_eq!(part1(input), (28944, vec![200, 98, 38, 200]));
+    let input = utils::read_file("2018/test_day15-6");
+    assert_eq!(part1(input), (18740, vec![137, 200, 200, 200, 200]));
 }
 
 #[allow(unused_variables)]
@@ -19,8 +27,8 @@ pub fn part2(input: String) -> u32 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum El {
     Wall,
-    Goblin(u8),
-    Elf(u8),
+    Goblin(u8, u8),
+    Elf(u8, u8),
     Empty,
 }
 
@@ -33,20 +41,63 @@ struct BoardEl {
 struct Board {
     b: Vec<BoardEl>,
     height: usize,
+    width: usize,
+}
+
+enum MoveOutcome {
+    CombatEnd,
+    EnemyAdjacent,
+    MoveTo(Option<(usize, usize)>),
+}
+
+impl ToString for Board {
+    fn to_string(&self) -> String {
+        let mut stats = vec![];
+        let board = self
+            .b
+            .iter()
+            .map(|b| match b.el {
+                El::Wall => '#',
+                El::Goblin(h, _) => {
+                    stats.push(format!("G{}", h));
+                    'G'
+                }
+                El::Elf(h, _) => {
+                    stats.push(format!("E{}", h));
+                    'E'
+                }
+                El::Empty => '.',
+            })
+            .collect::<Vec<_>>();
+        (0..self.height)
+            .map(|y| {
+                (0..self.width)
+                    .map(|x| board[y * self.width + x])
+                    .collect::<String>()
+            })
+            .chain([stats.join(" ")].into_iter())
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
 }
 
 impl Board {
     fn new(board: Vec<BoardEl>) -> Self {
         let height = board.iter().map(|el| el.p.1).max().unwrap() + 1;
-        Board { b: board, height }
+        let width = board.iter().map(|el| el.p.0).max().unwrap() + 1;
+        Board {
+            b: board,
+            height,
+            width,
+        }
     }
 
     fn get(&self, (x, y): (usize, usize)) -> BoardEl {
-        self.b[y * self.height + x]
+        self.b[y * self.width + x]
     }
 
     fn get_mut(&mut self, (x, y): (usize, usize)) -> &mut BoardEl {
-        &mut self.b[y * self.height + x]
+        &mut self.b[y * self.width + x]
     }
 
     fn adjacent_empty_positions(&self, p: (usize, usize)) -> Vec<BoardEl> {
@@ -60,7 +111,7 @@ impl Board {
         self.neighbours(unit.p).iter().any(|bel| {
             matches!(
                 (unit.el, bel.el),
-                (El::Goblin(_), El::Elf(_)) | (El::Elf(_), El::Goblin(_))
+                (El::Goblin(_, _), El::Elf(_, _)) | (El::Elf(_, _), El::Goblin(_, _))
             )
         })
     }
@@ -102,39 +153,32 @@ impl Board {
         None
     }
 
-    fn move_unit(&self, unit: BoardEl) -> Option<(usize, usize)> {
+    fn move_unit(&self, unit: BoardEl) -> MoveOutcome {
         let targets = self
             .b
             .iter()
             .filter(|bel| {
                 matches!(
                     (unit.el, bel.el),
-                    (El::Goblin(_), El::Elf(_)) | (El::Elf(_), El::Goblin(_))
+                    (El::Goblin(_, _), El::Elf(_, _)) | (El::Elf(_, _), El::Goblin(_, _))
                 )
             })
             .cloned();
-        // sort by distance and then by reading order
-        // targets.sort_by(|e1, e2| (e1.0, e1.1.p.1, e1.1.p.0).cmp(&(e2.0, e2.1.p.1, e2.1.p.0)));
         if targets.clone().count() == 0 {
-            panic!("no enemies");
+            return MoveOutcome::CombatEnd;
         }
         if self.is_enemy_adjacent(unit) {
-            return None;
+            return MoveOutcome::EnemyAdjacent;
         }
-        let in_range = targets.flat_map(|bel| {
-            self.adjacent_empty_positions(bel.p)
-                .into_iter()
-                .map(move |pos| (pos, bel))
-        });
-        in_range
-            .map(|(space, bel)| (self.distance(unit, space), space, bel))
-            .filter(|(d, _, _)| d.is_some())
-            .map(|(d, s, b)| (d.unwrap(), s, b))
-            .min_by(|(d1, s1, _), (d2, s2, _)| {
-                (d1.0, s1.p.1, s1.p.0, d1.1 .1, d1.1 .0)
-                    .cmp(&(d2.0, s2.p.1, s2.p.0, d2.1 .1, d2.1 .0))
-            })
-            .map(|(d, _, _)| d.1)
+        let in_range = targets.flat_map(|bel| self.adjacent_empty_positions(bel.p).into_iter());
+        MoveOutcome::MoveTo(
+            in_range
+                .map(|space| (self.distance(unit, space), space))
+                .filter(|(d, _)| d.is_some())
+                .map(|(d, s)| (d.unwrap(), s))
+                .min_by(|(d1, s1), (d2, s2)| (d1.0, s1.p.1, s1.p.0).cmp(&(d2.0, s2.p.1, s2.p.0)))
+                .map(|(d, _)| d.1),
+        )
     }
 }
 
@@ -151,7 +195,7 @@ fn test_distance() {
 #########"#;
     let board = parse_board(input.to_string());
     let g = board.get((1, 1));
-    assert_eq!(g.el, El::Goblin(200));
+    assert_eq!(g.el, El::Goblin(200, 1));
     let res = board.distance(board.get((1, 1)), board.get((4, 4)));
     assert_eq!(res.unwrap(), (6, (2, 1)));
     let res = board.distance(board.get((1, 1)), board.get((1, 2)));
@@ -166,48 +210,82 @@ fn test_distance() {
     assert_eq!(res.unwrap(), (6, (2, 7)));
 }
 
-pub fn part1(input: String) -> u32 {
+pub fn part1(input: String) -> (u32, Vec<u8>) {
     let mut board = parse_board(input);
-
-    for bel in board.b.clone().into_iter() {
-        // get the unit's current state
-        let unit = board.get(bel.p);
-        // first try to move
-        let move_to = match unit.el {
-            El::Goblin(_) => board.move_unit(unit),
-            El::Elf(_) => board.move_unit(unit),
-            El::Wall | El::Empty => continue,
-        };
-        if let Some(move_to) = move_to {
-            let move_to = board.get_mut(move_to);
-            assert_eq!(move_to.el, El::Empty);
-            move_to.el = unit.el;
-            board.get_mut(unit.p).el = El::Empty;
-        }
-        // try to attack
-        let neighbour_enemy = board
-            .neighbours(unit.p)
+    for i in 0..100 {
+        let mut combat_end = false;
+        for bel in board
+            .b
+            .clone()
             .into_iter()
-            .filter(|bel| {
-                matches!(
-                    (unit.el, bel.el),
-                    (El::Goblin(_), El::Elf(_)) | (El::Elf(_), El::Goblin(_))
-                )
-            })
-            .min_by(|e1, e2| (e1.health(), e1.p.1, e1.p.0).cmp(&(e2.health(), e2.p.1, e2.p.0)));
-        if let Some(neighbour_enemy) = neighbour_enemy {
-            board.get_mut(neighbour_enemy.p).hit(3);
+            .filter(|bel| matches!(bel.el, El::Elf(_, _) | El::Goblin(_, _)))
+        {
+            // get the unit's current state
+            let unit = board.get(bel.p);
+            match (bel.el, unit.el) {
+                (El::Goblin(_, id1), El::Goblin(_, id2)) if id1 == id2 => (),
+                (El::Elf(_, id1), El::Elf(_, id2)) if id1 == id2 => (),
+                _ => continue,
+            }
+            // first try to move
+            let move_to = board.move_unit(unit);
+            if let MoveOutcome::CombatEnd = move_to {
+                combat_end = true;
+                break;
+            }
+            let p = if let MoveOutcome::MoveTo(Some(move_to_p)) = move_to {
+                let move_to = board.get_mut(move_to_p);
+                assert_eq!(move_to.el, El::Empty);
+                move_to.el = unit.el;
+                board.get_mut(unit.p).el = El::Empty;
+                move_to_p
+            } else {
+                unit.p
+            };
+            // try to attack
+            let neighbour_enemy = board
+                .neighbours(p)
+                .into_iter()
+                .filter(|bel| {
+                    matches!(
+                        (unit.el, bel.el),
+                        (El::Goblin(_, _), El::Elf(_, _)) | (El::Elf(_, _), El::Goblin(_, _))
+                    )
+                })
+                .min_by(|e1, e2| (e1.health(), e1.p.1, e1.p.0).cmp(&(e2.health(), e2.p.1, e2.p.0)));
+            if let Some(neighbour_enemy) = neighbour_enemy {
+                board.get_mut(neighbour_enemy.p).hit(3);
+            }
+        }
+        //println!("{}", board.to_string());
+        if combat_end {
+            return (
+                i * board
+                    .b
+                    .clone()
+                    .into_iter()
+                    .map(|b| match b.el {
+                        El::Wall => 0,
+                        El::Goblin(h, _) => h,
+                        El::Elf(h, _) => h,
+                        El::Empty => 0,
+                    } as u32)
+                    .sum::<u32>(),
+                board
+                    .b
+                    .into_iter()
+                    .map(|b| match b.el {
+                        El::Wall => None,
+                        El::Goblin(h, _) => Some(h),
+                        El::Elf(h, _) => Some(h),
+                        El::Empty => None,
+                    })
+                    .flatten()
+                    .collect(),
+            );
         }
     }
-
-    // find targets - no targets, done, sym ended
-    // find empty slots next to targets - all occupied and none by me, turn done
-    // find empty slot to move to with fewest steps and with lowest reading order - can't find path to target, turn done
-    // targets -> in range -> reachable -> nearest -> chosen
-    // take one step on shortest path and shortest reading order
-    // attack:
-
-    todo!()
+    unreachable!();
 }
 
 #[test]
@@ -227,11 +305,11 @@ fn test_move() {
         let mut moved = false;
         for unit in board.b.clone().into_iter() {
             let move_to = match unit.el {
-                El::Goblin(_) => board.move_unit(unit),
-                El::Elf(_) => board.move_unit(unit),
+                El::Goblin(_, _) => board.move_unit(unit),
+                El::Elf(_, _) => board.move_unit(unit),
                 El::Wall | El::Empty => continue,
             };
-            if let Some(move_to) = move_to {
+            if let MoveOutcome::MoveTo(Some(move_to)) = move_to {
                 moves.push((unit.p, move_to));
                 moved = true;
                 assert_eq!(board.get(move_to).el, El::Empty);
@@ -274,6 +352,7 @@ fn test_move() {
 }
 
 fn parse_board(input: String) -> Board {
+    let mut counter = 0;
     let board: Vec<BoardEl> = input
         .split_terminator('\n')
         .enumerate()
@@ -282,8 +361,14 @@ fn parse_board(input: String) -> Board {
                 let el = match c {
                     '#' => El::Wall,
                     '.' => El::Empty,
-                    'G' => El::Goblin(200),
-                    'E' => El::Elf(200),
+                    'G' => El::Goblin(200, {
+                        counter += 1;
+                        counter
+                    }),
+                    'E' => El::Elf(200, {
+                        counter += 1;
+                        counter
+                    }),
                     v => unreachable!(v),
                 };
                 BoardEl { p: (x, y), el }
@@ -296,19 +381,19 @@ impl BoardEl {
     fn health(&self) -> u8 {
         match self.el {
             El::Wall => unreachable!(),
-            El::Goblin(h) => h,
-            El::Elf(h) => h,
+            El::Goblin(h, _) => h,
+            El::Elf(h, _) => h,
             El::Empty => unreachable!(),
         }
     }
 
     fn hit(&mut self, hit_points: u8) {
         let health = self.health();
-        self.el = if health > 3 {
+        self.el = if health > hit_points {
             match self.el {
                 El::Wall => unreachable!(),
-                El::Goblin(h) => El::Goblin(h - hit_points),
-                El::Elf(h) => El::Elf(h - hit_points),
+                El::Goblin(h, id) => El::Goblin(h - hit_points, id),
+                El::Elf(h, id) => El::Elf(h - hit_points, id),
                 El::Empty => unreachable!(),
             }
         } else {
