@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cargo test  -- --nocapture && cargo run && cargo clippy
+cargo test  -- --nocapture && cargo run --release && cargo clippy
