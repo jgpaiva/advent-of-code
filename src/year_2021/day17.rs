@@ -9,36 +9,30 @@ fn test() {
 }
 
 pub fn part2(input: String) -> usize {
-    let (x_min, x_max, y_min, y_max) = parse(input);
-
-    let (xv_min, xv_max, yv_min, yv_max) = calculate_bounds(x_min, x_max, y_min);
-
-    run_sym(xv_min, xv_max, yv_min, yv_max, x_min, x_max, y_min, y_max).1
+    let area = parse(input);
+    let velocities = calculate_bounds(area);
+    run_sym(velocities, area).1
 }
 
 pub fn part1(input: String) -> ((i32, i32), i32) {
-    let (x_min, x_max, y_min, y_max) = parse(input);
-
-    let (xv_min, xv_max, yv_min, yv_max) = calculate_bounds(x_min, x_max, y_min);
-
-    run_sym(xv_min, xv_max, yv_min, yv_max, x_min, x_max, y_min, y_max).0
+    let area = parse(input);
+    let velocities = calculate_bounds(area);
+    run_sym(velocities, area).0
 }
 
-#[allow(clippy::too_many_arguments)]
-fn run_sym(
-    xv_min: i32,
-    xv_max: i32,
-    yv_min: i32,
-    yv_max: i32,
-    x_min: i32,
-    x_max: i32,
-    y_min: i32,
-    y_max: i32,
-) -> (((i32, i32), i32), usize) {
+#[derive(Clone, Copy, Debug)]
+struct Bounds {
+    xmin: i32,
+    xmax: i32,
+    ymin: i32,
+    ymax: i32,
+}
+
+fn run_sym(velocities: Bounds, area: Bounds) -> (((i32, i32), i32), usize) {
     let mut max = ((-1, -1), 0);
     let mut hits = 0;
-    for xv_init in xv_min..=xv_max {
-        for yv_init in yv_min..=yv_max {
+    for xv_init in velocities.xmin..=velocities.xmax {
+        for yv_init in velocities.ymin..=velocities.ymax {
             let mut xv = xv_init;
             let mut yv = yv_init;
             let mut p = (0, 0);
@@ -50,12 +44,12 @@ fn run_sym(
                 if p.1 > max_y {
                     max_y = p.1;
                 }
-                if p.0 >= x_min && p.0 <= x_max && p.1 >= y_min && p.1 <= y_max {
+                if p.0 >= area.xmin && p.0 <= area.xmax && p.1 >= area.ymin && p.1 <= area.ymax {
                     hit = true;
                     hits += 1;
                     break;
                 }
-                if p.0 > x_max || p.1 < y_min {
+                if p.0 > area.xmax || p.1 < area.ymin {
                     break; // overshoot
                 }
                 //dbg!(&p);
@@ -71,36 +65,45 @@ fn run_sym(
     (max, hits)
 }
 
-fn calculate_bounds(x_min: i32, x_max: i32, y_min: i32) -> (i32, i32, i32, i32) {
+fn calculate_bounds(area: Bounds) -> Bounds {
     // if x initial velocity is not enough, we stop before reaching the area
     let mut xv_min = 1;
-    for i in 0..x_min {
-        if (0..=i).sum::<i32>() >= x_min {
+    for i in 0..area.xmin {
+        if (0..=i).sum::<i32>() >= area.xmin {
             xv_min = i;
             break;
         }
     }
-    let xv_min = xv_min;
     // if x initial velocity is too much, we overshoot
-    let xv_max = x_max + 1;
+    let xv_max = area.xmax + 1;
     // if y initial velocity is not enough, we go bellow y_min before reaching the area
-    let yv_min = y_min - 1;
+    let yv_min = area.ymin - 1;
     // if y initial velocity is too much, when coming down we blow past the area
-    let yv_max = (-y_min) + 1;
+    let yv_max = (-area.ymin) + 1;
 
-    (xv_min, xv_max, yv_min, yv_max)
+    Bounds {
+        xmin: xv_min,
+        xmax: xv_max,
+        ymin: yv_min,
+        ymax: yv_max,
+    }
 }
 
-fn parse(input: String) -> (i32, i32, i32, i32) {
+fn parse(input: String) -> Bounds {
     let coords = input.split_once("area: x=").unwrap().1;
     let (xcoords, ycoords) = coords.split_once(", y=").unwrap();
-    let (x_min, x_max): (i32, i32) = xcoords
+    let (xmin, xmax): (i32, i32) = xcoords
         .split_once("..")
         .map(|(min, max)| (min.parse().unwrap(), max.parse().unwrap()))
         .unwrap();
-    let (y_min, y_max): (i32, i32) = ycoords
+    let (ymin, ymax): (i32, i32) = ycoords
         .split_once("..")
         .map(|(min, max)| (min.parse().unwrap(), max.parse().unwrap()))
         .unwrap();
-    (x_min, x_max, y_min, y_max)
+    Bounds {
+        xmin,
+        xmax,
+        ymin,
+        ymax,
+    }
 }
