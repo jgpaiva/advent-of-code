@@ -124,4 +124,9 @@ fn days_2018(skip_slow: bool) {
     }
     println!("day16 part 1: {:?}", day16::part1(read_file("2018/day16")));
     println!("day16 part 2: {:?}", day16::part2(read_file("2018/day16")));
+    if !skip_slow {
+        // still wip
+        println!("day17 part 1: {:?}", day17::part1(read_file("2018/day17")));
+        println!("day17 part 2: {:?}", day17::part2(read_file("2018/day17")));
+    }
 }
