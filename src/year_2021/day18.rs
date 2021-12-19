@@ -10,22 +10,18 @@ use crate::utils;
 fn test() {
     let num = "[[[[[9,8],1],2],3],4]";
     assert_eq!(print_number(parse_number(num)), num);
-    println!("1");
     assert_eq!(
         print_number(explode_number(parse_number("[[1,2],[3,4]]"))),
         "[[1,2],[3,4]]"
     );
-    println!("2");
     assert_eq!(
         print_number(explode_number(parse_number("[[[1,2],[3,4]],5]"))),
         "[[[1,2],[3,4]],5]"
     );
-    println!("3");
     assert_eq!(
         print_number(explode_number(parse_number("[[[[1,2],[3,4]],5],6]"))),
         "[[[[1,2],[3,4]],5],6]"
     );
-    println!("4");
     assert_eq!(
         print_number(explode_number(parse_number("[[[[[9,8],1],2],3],4]"))),
         "[[[[0,9],2],3],4]"
@@ -99,7 +95,6 @@ pub fn part2(input: String) -> u32 {
     let max = input
         .max_by(|v1, v2| magnitude_recur(v1.2.clone()).cmp(&magnitude_recur(v2.2.clone())))
         .unwrap();
-    dbg!(&max.0, &max.1, print_number(max.2.clone()));
     magnitude_recur(max.2)
 }
 
@@ -116,7 +111,6 @@ pub fn part1(input: String) -> u32 {
             let sum = add_numbers(acc, i);
             print_number(sum)
         });
-    dbg!(&input);
     magnitude_recur(parse_number(input.as_ref()))
 }
 
@@ -188,42 +182,16 @@ fn split(
         left: left_leaf.clone(),
         right: right_leaf.clone(),
     };
-    if let Tree::Leaf {
-        ref mut right,
-        ref mut left,
-        ..
-    } = *left_leaf.borrow_mut()
-    {
-        *right = Rc::downgrade(&right_leaf);
-        if let Some(left_upgraded) = parent_left.upgrade() {
-            if let Tree::Leaf { ref mut right, .. } = *left_upgraded.borrow_mut() {
-                *right = Rc::downgrade(&left_leaf);
-                *left = Rc::downgrade(&left_upgraded);
-            } else {
-                unreachable!()
-            }
-        }
-    } else {
-        unreachable!()
-    };
-    if let Tree::Leaf {
-        ref mut right,
-        ref mut left,
-        ..
-    } = *right_leaf.borrow_mut()
-    {
-        *left = Rc::downgrade(&left_leaf);
-        if let Some(right_upgraded) = parent_right.upgrade() {
-            if let Tree::Leaf { ref mut left, .. } = *right_upgraded.borrow_mut() {
-                *left = Rc::downgrade(&right_leaf);
-                *right = Rc::downgrade(&right_upgraded);
-            } else {
-                unreachable!()
-            }
-        }
-    } else {
-        unreachable!()
-    };
+    set_weak_right(&left_leaf, &right_leaf);
+    set_weak_left(&right_leaf, &left_leaf);
+    if let Some(left_upgraded) = parent_left.upgrade() {
+        set_weak_right(&left_upgraded, &left_leaf);
+        set_weak_left(&left_leaf, &left_upgraded);
+    }
+    if let Some(right_upgraded) = parent_right.upgrade() {
+        set_weak_left(&right_upgraded, &right_leaf);
+        set_weak_right(&right_leaf, &right_upgraded);
+    }
     let mut b = parent.borrow_mut();
     *b = new_parent;
 }
@@ -259,35 +227,17 @@ fn explode(parent: Rc<RefCell<Tree>>, left: Rc<RefCell<Tree>>, right: Rc<RefCell
     if let Tree::Leaf { v, ref left, .. } = &*left.borrow() {
         let exploded_v = *v;
         if let Some(left_upgraded) = left.upgrade() {
-            if let Tree::Leaf {
-                ref mut right,
-                ref mut v,
-                ..
-            } = *left_upgraded.borrow_mut()
-            {
-                *right = Rc::downgrade(&parent);
-                *v += exploded_v;
-                set_weak_left(&parent, &left_upgraded);
-            } else {
-                unreachable!()
-            }
+            update_value(&left_upgraded, |v| v + exploded_v);
+            set_weak_right(&left_upgraded, &parent);
+            set_weak_left(&parent, &left_upgraded);
         }
     }
     if let Tree::Leaf { v, ref right, .. } = &*right.borrow() {
         let exploded_v = *v;
         if let Some(right_upgraded) = right.upgrade() {
-            if let Tree::Leaf {
-                ref mut left,
-                ref mut v,
-                ..
-            } = *right_upgraded.borrow_mut()
-            {
-                *left = Rc::downgrade(&parent);
-                *v += exploded_v;
-                set_weak_right(&parent, &right_upgraded);
-            } else {
-                unreachable!()
-            }
+            update_value(&right_upgraded, |v| v + exploded_v);
+            set_weak_left(&right_upgraded, &parent);
+            set_weak_right(&parent, &right_upgraded);
         }
     }
 }
@@ -354,11 +304,22 @@ fn set_weak_right(leaf: &Rc<RefCell<Tree>>, set_to: &Rc<RefCell<Tree>>) {
         _ => unreachable!(),
     }
 }
+
 fn set_weak_left(leaf: &Rc<RefCell<Tree>>, set_to: &Rc<RefCell<Tree>>) {
     let mut b = (*leaf).borrow_mut();
     match *b {
         Tree::Leaf { ref mut left, .. } => {
             *left = Rc::downgrade(set_to);
+        }
+        _ => unreachable!(),
+    }
+}
+
+fn update_value<F: Fn(u8) -> u8>(leaf: &Rc<RefCell<Tree>>, f: F) {
+    let mut b = (*leaf).borrow_mut();
+    match *b {
+        Tree::Leaf { ref mut v, .. } => {
+            *v = f(*v);
         }
         _ => unreachable!(),
     }
