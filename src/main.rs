@@ -64,6 +64,8 @@ fn days_2021(skip_slow: bool) {
     println!("day16 part 2: {}", day16::part2(read_file("2021/day16")));
     println!("day17 part 1: {:?}", day17::part1(read_file("2021/day17")));
     println!("day17 part 2: {:?}", day17::part2(read_file("2021/day17")));
+    println!("day18 part 1: {:?}", day18::part1(read_file("2021/day18")));
+    println!("day18 part 2: {:?}", day18::part2(read_file("2021/day18")));
 }
 
 fn days_2018(skip_slow: bool) {
