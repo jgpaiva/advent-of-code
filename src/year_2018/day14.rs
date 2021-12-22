@@ -36,7 +36,6 @@ pub fn part2(input: &str) -> usize {
         elf1pos = (elf1pos + board[elf1pos] as usize + 1) % board.len();
         elf2pos = (elf2pos + board[elf2pos] as usize + 1) % board.len();
     }
-    dbg!(elf1pos, elf2pos, board.len());
     unreachable!("should not be reached, maybe you need more iterations?")
 }
 pub fn part1(input: usize) -> u64 {

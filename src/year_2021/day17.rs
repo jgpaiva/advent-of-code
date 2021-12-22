@@ -52,7 +52,6 @@ fn run_sym(velocities: Bounds, area: Bounds) -> (((i32, i32), i32), usize) {
                 if p.0 > area.xmax || p.1 < area.ymin {
                     break; // overshoot
                 }
-                //dbg!(&p);
                 p = (p.0 + xv, p.1 + yv);
                 yv -= 1;
                 xv = if xv == 0 { 0 } else { xv - 1 };

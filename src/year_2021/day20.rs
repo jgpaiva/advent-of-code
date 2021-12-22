@@ -44,9 +44,7 @@ pub fn part1(input: String) -> usize {
     let image = to_vec_bool(image);
 
     let image_out = run_iter(image, &algo);
-    println!("{}", to_string(image_out.clone()));
     let image_out = run_iter(image_out, &algo);
-    println!("{}", to_string(image_out.clone()));
 
     image_out
         .into_iter()
@@ -116,6 +114,7 @@ fn to_vec_bool(image: &str) -> Vec<Vec<bool>> {
         .collect::<Vec<_>>()
 }
 
+#[allow(dead_code)]
 fn to_string(image: Vec<Vec<bool>>) -> String {
     image
         .into_iter()
