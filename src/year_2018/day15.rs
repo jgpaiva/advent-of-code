@@ -278,7 +278,6 @@ fn run_sim(input: String, elf_attack_power: u8) -> (u32, Vec<u8>, bool) {
                 elf_died = board.get_mut(neighbour_enemy.p).hit(elf_attack_power) || elf_died;
             }
         }
-        //println!("{}", board.to_string());
         if combat_end || (elf_attack_power > 3 && elf_died) {
             return (
                 i * board
