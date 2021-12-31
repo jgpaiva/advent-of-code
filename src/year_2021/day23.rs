@@ -7,26 +7,37 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_file("2021/test_day23");
-    assert_eq!(part1(input), 12521);
-    // let input = utils::read_file("2021/test_day23");
-    // assert_eq!(part2(input), 2758514936282235);
+    let _input = utils::read_file("2021/test_day23-1");
+    // assert_eq!(part1(input), 12521);
+    // let input = utils::read_file("2021/test_day23-2");
+    // assert_eq!(part2(input), 44169);
 }
 
-pub fn part2(_input: String) -> u64 {
-    todo!()
+pub fn part2(input: String) -> u32 {
+    let board = parse(input.as_ref());
+    let ret = explore_recur(board, 0, &mut HashMap::new()).unwrap();
+    dbg!(ret.1);
+    ret.0
 }
 
 #[derive(Default, Eq, PartialEq, Hash, Clone)]
 struct Board {
-    slot_1_2: u8,
     slot_1_1: u8,
-    slot_2_2: u8,
+    slot_1_2: u8,
+    slot_1_3: u8,
+    slot_1_4: u8,
     slot_2_1: u8,
-    slot_3_2: u8,
+    slot_2_2: u8,
+    slot_2_3: u8,
+    slot_2_4: u8,
     slot_3_1: u8,
-    slot_4_2: u8,
+    slot_3_2: u8,
+    slot_3_3: u8,
+    slot_3_4: u8,
     slot_4_1: u8,
+    slot_4_2: u8,
+    slot_4_3: u8,
+    slot_4_4: u8,
     hallway_0: u8,
     hallway_1: u8,
     hallway_1_2: u8,
@@ -40,14 +51,22 @@ struct Board {
 impl Board {
     fn get_slot(&self, slot_num: u8, pos: u8) -> u8 {
         match (slot_num, pos) {
-            (1, 2) => self.slot_1_2,
             (1, 1) => self.slot_1_1,
-            (2, 2) => self.slot_2_2,
+            (1, 2) => self.slot_1_2,
+            (1, 3) => self.slot_1_3,
+            (1, 4) => self.slot_1_4,
             (2, 1) => self.slot_2_1,
-            (3, 2) => self.slot_3_2,
+            (2, 2) => self.slot_2_2,
+            (2, 3) => self.slot_2_3,
+            (2, 4) => self.slot_2_4,
             (3, 1) => self.slot_3_1,
-            (4, 2) => self.slot_4_2,
+            (3, 2) => self.slot_3_2,
+            (3, 3) => self.slot_3_3,
+            (3, 4) => self.slot_3_4,
             (4, 1) => self.slot_4_1,
+            (4, 2) => self.slot_4_2,
+            (4, 3) => self.slot_4_3,
+            (4, 4) => self.slot_4_4,
             _ => unreachable!(),
         }
     }
@@ -56,12 +75,20 @@ impl Board {
         match (slot_num, pos) {
             (1, 1) => self.slot_1_1 = el,
             (1, 2) => self.slot_1_2 = el,
+            (1, 3) => self.slot_1_3 = el,
+            (1, 4) => self.slot_1_4 = el,
             (2, 1) => self.slot_2_1 = el,
             (2, 2) => self.slot_2_2 = el,
+            (2, 3) => self.slot_2_3 = el,
+            (2, 4) => self.slot_2_4 = el,
             (3, 1) => self.slot_3_1 = el,
             (3, 2) => self.slot_3_2 = el,
+            (3, 3) => self.slot_3_3 = el,
+            (3, 4) => self.slot_3_4 = el,
             (4, 1) => self.slot_4_1 = el,
             (4, 2) => self.slot_4_2 = el,
+            (4, 3) => self.slot_4_3 = el,
+            (4, 4) => self.slot_4_4 = el,
             _ => unreachable!(),
         }
     }
@@ -73,8 +100,10 @@ impl Board {
     }
 
     fn final_board(&self) -> Board {
-        let mut ret = Board::default();
-        ret.depth = self.depth;
+        let mut ret = Board {
+            depth: self.depth,
+            ..Default::default()
+        };
         for slot_num in 1..=4 {
             for pos in 1..=ret.depth {
                 ret.set_slot(slot_num, pos, slot_num);
@@ -90,24 +119,53 @@ impl Board {
 
 impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!(
-            "|{}{} {}{} {} {}{} {} {}{} {} {}{} {}{}|",
-            board_to_char(self.hallway_0),
-            board_to_char(self.hallway_1),
-            board_to_char(self.slot_1_1),
-            board_to_char(self.slot_1_2),
-            board_to_char(self.hallway_1_2),
-            board_to_char(self.slot_2_1),
-            board_to_char(self.slot_2_2),
-            board_to_char(self.hallway_2_3),
-            board_to_char(self.slot_3_1),
-            board_to_char(self.slot_3_2),
-            board_to_char(self.hallway_3_4),
-            board_to_char(self.slot_4_1),
-            board_to_char(self.slot_4_2),
-            board_to_char(self.hallway_2),
-            board_to_char(self.hallway_3)
-        ))
+        if self.depth == 2 {
+            f.write_fmt(format_args!(
+                "|{}{} {}{} {} {}{} {} {}{} {} {}{} {}{}|",
+                board_to_char(self.hallway_0),
+                board_to_char(self.hallway_1),
+                board_to_char(self.slot_1_1),
+                board_to_char(self.slot_1_2),
+                board_to_char(self.hallway_1_2),
+                board_to_char(self.slot_2_1),
+                board_to_char(self.slot_2_2),
+                board_to_char(self.hallway_2_3),
+                board_to_char(self.slot_3_1),
+                board_to_char(self.slot_3_2),
+                board_to_char(self.hallway_3_4),
+                board_to_char(self.slot_4_1),
+                board_to_char(self.slot_4_2),
+                board_to_char(self.hallway_2),
+                board_to_char(self.hallway_3)
+            ))
+        } else {
+            f.write_fmt(format_args!(
+                "|{}{} {}{}{}{} {} {}{}{}{} {} {}{}{}{} {} {}{}{}{} {}{}|",
+                board_to_char(self.hallway_0),
+                board_to_char(self.hallway_1),
+                board_to_char(self.slot_1_1),
+                board_to_char(self.slot_1_2),
+                board_to_char(self.slot_1_3),
+                board_to_char(self.slot_1_4),
+                board_to_char(self.hallway_1_2),
+                board_to_char(self.slot_2_1),
+                board_to_char(self.slot_2_2),
+                board_to_char(self.slot_2_3),
+                board_to_char(self.slot_2_4),
+                board_to_char(self.hallway_2_3),
+                board_to_char(self.slot_3_1),
+                board_to_char(self.slot_3_2),
+                board_to_char(self.slot_3_3),
+                board_to_char(self.slot_3_4),
+                board_to_char(self.hallway_3_4),
+                board_to_char(self.slot_4_1),
+                board_to_char(self.slot_4_2),
+                board_to_char(self.slot_4_3),
+                board_to_char(self.slot_4_4),
+                board_to_char(self.hallway_2),
+                board_to_char(self.hallway_3)
+            ))
+        }
     }
 }
 
@@ -247,26 +305,27 @@ fn test_next_moves() {
         next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
         HashSet::from([])
     );
+    let b = z("..[AAAA].[BBBB].[CCCC].[DDDD]..");
+    assert_eq!(
+        next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
+        HashSet::from([])
+    );
+    let b = z("..[....]C[....].[....]A[...A]D.");
+    assert_eq!(
+        next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
+        HashSet::from([(z("..[....].[....].[...C]A[...A]D."), 7 * 100)])
+    );
+    let b = z("..[....]C[....]A[....].[...A]D.");
+    assert_eq!(
+        next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
+        HashSet::from([(z("..[....]C[....]A[....]A[....]D."), 5 * 1),])
+    );
 }
 
 fn next_moves(b: &Board, c: u32) -> Vec<(Board, u32)> {
     let mut ret = vec![];
     // move out of slots
-    for slot_num in 1..=4 {
-        if b.get_slot(slot_num, 1) > 0 {
-            let el = b.get_slot(slot_num, 1);
-            let b1 = b.clone_with_slot(slot_num, 1, 0);
-            if el != slot_num || b.get_slot(slot_num, 2) != slot_num {
-                move_out_of_slot_num(slot_num, b1, &mut ret, el, c);
-            }
-        } else if b.get_slot(slot_num, 2) > 0 {
-            let el = b.get_slot(slot_num, 2);
-            let b1 = b.clone_with_slot(slot_num, 2, 0);
-            if el != slot_num {
-                move_out_of_slot_num(slot_num, b1, &mut ret, el, c + cost(el));
-            }
-        }
-    }
+    move_out_of_slot(b, &mut ret, c);
     // move into slots
     if b.hallway_0 > 0 && b.hallway_1 == 0 {
         let el = b.hallway_0;
@@ -402,12 +461,59 @@ fn cost(el: u8) -> u32 {
     10u32.pow(el as u32 - 1)
 }
 
+fn move_out_of_slot(b: &Board, ret: &mut Vec<(Board, u32)>, c: u32) {
+    for slot_num in 1..=4 {
+        let mut can_move = None;
+        for pos in 1..=b.depth {
+            if b.get_slot(slot_num, pos) == 0 {
+                continue;
+            }
+            can_move.replace(pos);
+            break;
+        }
+        if let Some(pos) = can_move {
+            let el = b.get_slot(slot_num, pos);
+            let b1 = b.clone_with_slot(slot_num, pos, 0);
+            let should_move = el != slot_num
+                || (pos + 1..=b1.depth).any(|pos| b1.get_slot(slot_num, pos) != slot_num);
+            if should_move {
+                move_out_of_slot_num(slot_num, b1, ret, el, c + (pos as u32 - 1) * cost(el));
+            }
+        }
+        // if b.get_slot(slot_num, 1) > 0 {
+        //     let el = b.get_slot(slot_num, 1);
+        //     let b1 = b.clone_with_slot(slot_num, 1, 0);
+        //     if el != slot_num || b.get_slot(slot_num, 2) != slot_num {
+        //         move_out_of_slot_num(slot_num, b1, ret, el, c);
+        //     }
+        // } else if b.get_slot(slot_num, 2) > 0 {
+        //     let el = b.get_slot(slot_num, 2);
+        //     let b1 = b.clone_with_slot(slot_num, 2, 0);
+        //     if el != slot_num {
+        //         move_out_of_slot_num(slot_num, b1, ret, el, c + cost(el));
+        //     }
+        // }
+    }
+}
+
 fn move_into_slot(b1: &Board, slot_num: u8, el: u8, ret: &mut Vec<(Board, u32)>, c: u32) {
-    if b1.get_slot(slot_num, 1) == 0 && slot_num == el {
-        if b1.get_slot(slot_num, 2) == 0 {
-            ret.push((b1.clone_with_slot(slot_num, 2, el), c + cost(el)));
-        } else if b1.get_slot(slot_num, 2) == el {
-            ret.push((b1.clone_with_slot(slot_num, 1, el), c));
+    if slot_num != el {
+        return;
+    }
+    let mut can_move = None;
+    for pos in 1..=b1.depth {
+        if b1.get_slot(slot_num, pos) != 0 {
+            break;
+        }
+        can_move.replace(pos);
+    }
+    if let Some(pos) = can_move {
+        let should_move = (pos + 1..=b1.depth).all(|pos| b1.get_slot(slot_num, pos) == el);
+        if should_move {
+            ret.push((
+                b1.clone_with_slot(slot_num, pos, el),
+                c + (pos as u32 - 1) * cost(el),
+            ));
         }
     }
 }
@@ -643,8 +749,14 @@ fn explore_recur(
 }
 
 fn parse(input: &str) -> Board {
-    let mut board = Board::default();
-    board.depth = 2;
+    let mut board = Board {
+        depth: if input.split_terminator('\n').count() == 5 {
+            2
+        } else {
+            4
+        },
+        ..Default::default()
+    };
     for (i, line) in input
         .split_terminator('\n')
         .skip(1)
@@ -679,28 +791,32 @@ fn parse(input: &str) -> Board {
 #[cfg(test)]
 fn z(b: &str) -> Board {
     let mut board = Board::default();
-    board.depth = 2;
+    board.depth = if b.len() == 23 { 2 } else { 4 };
     let mut c = b.chars();
     board.hallway_0 = parse_char(c.next().unwrap());
     board.hallway_1 = parse_char(c.next().unwrap());
     assert_eq!(c.next().unwrap(), '[');
-    board.slot_1_1 = parse_char(c.next().unwrap());
-    board.slot_1_2 = parse_char(c.next().unwrap());
+    for pos in 1..=board.depth {
+        board.set_slot(1, pos, parse_char(c.next().unwrap()));
+    }
     assert_eq!(c.next().unwrap(), ']');
     board.hallway_1_2 = parse_char(c.next().unwrap());
     assert_eq!(c.next().unwrap(), '[');
-    board.slot_2_1 = parse_char(c.next().unwrap());
-    board.slot_2_2 = parse_char(c.next().unwrap());
+    for pos in 1..=board.depth {
+        board.set_slot(2, pos, parse_char(c.next().unwrap()));
+    }
     assert_eq!(c.next().unwrap(), ']');
     board.hallway_2_3 = parse_char(c.next().unwrap());
     assert_eq!(c.next().unwrap(), '[');
-    board.slot_3_1 = parse_char(c.next().unwrap());
-    board.slot_3_2 = parse_char(c.next().unwrap());
+    for pos in 1..=board.depth {
+        board.set_slot(3, pos, parse_char(c.next().unwrap()));
+    }
     assert_eq!(c.next().unwrap(), ']');
     board.hallway_3_4 = parse_char(c.next().unwrap());
     assert_eq!(c.next().unwrap(), '[');
-    board.slot_4_1 = parse_char(c.next().unwrap());
-    board.slot_4_2 = parse_char(c.next().unwrap());
+    for pos in 1..=board.depth {
+        board.set_slot(4, pos, parse_char(c.next().unwrap()));
+    }
     assert_eq!(c.next().unwrap(), ']');
     board.hallway_2 = parse_char(c.next().unwrap());
     board.hallway_3 = parse_char(c.next().unwrap());
