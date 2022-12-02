@@ -14,3 +14,23 @@ pub fn read_lines(file_name: &str) -> Vec<String> {
 pub fn read_file(file_name: &str) -> String {
     fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file")
 }
+
+#[allow(unused)]
+pub fn read_test_file(source_file_name: &str) -> String {
+    let day = source_file_name
+        .split_once("day")
+        .unwrap()
+        .1
+        .chars()
+        .take(2)
+        .collect::<String>();
+    let year = source_file_name
+        .split_once('_')
+        .unwrap()
+        .1
+        .chars()
+        .take(4)
+        .collect::<String>();
+    let file_name = &format!("{year}/test_day{day}");
+    fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file")
+}

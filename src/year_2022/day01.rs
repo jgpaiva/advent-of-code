@@ -3,14 +3,14 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2022/test_day01");
+    let input = utils::read_test_file(file!());
     assert_eq!(part1(&input), 24000);
     assert_eq!(part2(&input), 45000);
 }
 
-pub fn part2(lines: &[String]) -> i32 {
+pub fn part2(lines: &str) -> i32 {
     let lines = lines
-        .iter()
+        .split_terminator('\n')
         .map(|x| x.parse().ok())
         .collect::<Vec<Option<i32>>>();
     let mut parsed_lines: Vec<Vec<i32>> = vec![vec![]];
@@ -29,9 +29,9 @@ pub fn part2(lines: &[String]) -> i32 {
     lines[0] + lines[1] + lines[2]
 }
 
-pub fn part1(lines: &[String]) -> i32 {
+pub fn part1(lines: &str) -> i32 {
     let lines = lines
-        .iter()
+        .split_terminator('\n')
         .map(|x| x.parse().ok())
         .collect::<Vec<Option<i32>>>();
     let mut parsed_lines: Vec<Vec<i32>> = vec![vec![]];

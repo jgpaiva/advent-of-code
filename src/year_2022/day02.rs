@@ -5,14 +5,14 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_lines("2022/test_day02");
+    let input = utils::read_test_file(file!());
     assert_eq!(part1(&input), 15);
     assert_eq!(part2(&input), 12);
 }
 
-pub fn part2(lines: &[String]) -> i32 {
+pub fn part2(lines: &str) -> i32 {
     let lines = lines
-        .iter()
+        .split_terminator('\n')
         .map(|x| x.split_once(' ').unwrap())
         .map(|(x, y)| {
             (
@@ -95,9 +95,9 @@ impl RPS {
     }
 }
 
-pub fn part1(lines: &[String]) -> i32 {
+pub fn part1(lines: &str) -> i32 {
     let lines = lines
-        .iter()
+        .split_terminator('\n')
         .map(|x| x.split_once(' ').unwrap())
         .map(|(x, y)| (x.parse::<RPS>().unwrap(), y.parse::<RPS>().unwrap()));
 
