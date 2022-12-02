@@ -1,6 +1,12 @@
-mod year_2018;
-mod year_2021;
-mod year_2022;
+mod year_2018 {
+    automod::dir!(pub "src/year_2018");
+}
+mod year_2021 {
+    automod::dir!(pub "src/year_2021");
+}
+mod year_2022 {
+    automod::dir!(pub "src/year_2022");
+}
 
 mod utils;
 use utils::*;
