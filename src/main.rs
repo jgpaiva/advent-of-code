@@ -10,8 +10,8 @@ fn main() {
     let show_old_years = false;
     days_2022(skip_slow);
     if show_old_years {
-    days_2021(skip_slow);
-    days_2018(skip_slow);
+        days_2021(skip_slow);
+        days_2018(skip_slow);
     }
 }
 
@@ -90,14 +90,16 @@ fn days_2021(skip_slow: bool) {
     println!("day22 part 2: {:?}", day22::part2(read_file("2021/day22")));
     if !skip_slow {
         println!(
-        "day23 part 1: {:?}",
-        day23::part1(read_file("2021/day23-1"))
-    );
-    println!(
-        "day23 part 2: {:?}",
-        day23::part2(read_file("2021/day23-2"))
-    );
-}
+            "day23 part 1: {:?}",
+            day23::part1(read_file("2021/day23-1"))
+        );
+        println!(
+            "day23 part 2: {:?}",
+            day23::part2(read_file("2021/day23-2"))
+        );
+    }
+    println!("day24 part 1: {:?}", day24::part1(read_file("2021/day24")));
+    println!("day24 part 2: {:?}", day24::part2(read_file("2021/day24")));
 }
 
 fn days_2018(skip_slow: bool) {
