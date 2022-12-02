@@ -7,7 +7,7 @@ use crate::utils;
 fn test() {
     let input = utils::read_file("2021/test_day12");
     assert_eq!(part1(input.clone()), 226);
-    assert_eq!(part2(input.clone()), 3509);
+    assert_eq!(part2(input), 3509);
 }
 
 #[allow(dead_code)]

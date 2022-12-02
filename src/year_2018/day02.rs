@@ -65,17 +65,17 @@ pub fn part2(lines: Vec<String>) -> String {
 
 #[test]
 fn test_aux() {
-    assert_eq!(aux(&"abcdef".to_string()), (0, 0));
-    assert_eq!(aux(&"bababc".to_string()), (1, 1));
-    assert_eq!(aux(&"abbcde".to_string()), (1, 0));
-    assert_eq!(aux(&"abcccd".to_string()), (0, 1));
-    assert_eq!(aux(&"aabcdd".to_string()), (1, 0));
-    assert_eq!(aux(&"abcdee".to_string()), (1, 0));
-    assert_eq!(aux(&"ababab".to_string()), (0, 1));
-    assert_eq!(aux(&"aaa".to_string()), (0, 1));
-    assert_eq!(aux(&"aa".to_string()), (1, 0));
-    assert_eq!(aux(&"aaaa".to_string()), (0, 0));
-    assert_eq!(aux(&"caaaabb".to_string()), (1, 0));
+    assert_eq!(aux("abcdef"), (0, 0));
+    assert_eq!(aux("bababc"), (1, 1));
+    assert_eq!(aux("abbcde"), (1, 0));
+    assert_eq!(aux("abcccd"), (0, 1));
+    assert_eq!(aux("aabcdd"), (1, 0));
+    assert_eq!(aux("abcdee"), (1, 0));
+    assert_eq!(aux("ababab"), (0, 1));
+    assert_eq!(aux("aaa"), (0, 1));
+    assert_eq!(aux("aa"), (1, 0));
+    assert_eq!(aux("aaaa"), (0, 0));
+    assert_eq!(aux("caaaabb"), (1, 0));
 }
 
 fn aux(s: &str) -> (i32, i32) {

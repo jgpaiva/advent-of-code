@@ -293,25 +293,23 @@ fn run_sim(input: String, elf_attack_power: u8) -> (u32, Vec<u8>, bool) {
                 board
                     .b
                     .iter()
-                    .map(|b| match b.el {
+                    .filter_map(|b| match b.el {
                         El::Wall => None,
                         El::Goblin(h, _) => Some(h),
                         El::Elf(h, _) => Some(h),
                         El::Empty => None,
                     })
-                    .flatten()
                     .collect(),
                 !elf_died
                     && board
                         .b
                         .iter()
-                        .map(|b| match b.el {
+                        .filter_map(|b| match b.el {
                             El::Wall => None,
                             El::Goblin(_, _) => Some(false),
                             El::Elf(_, _) => Some(true),
                             El::Empty => None,
                         })
-                        .flatten()
                         .next()
                         .unwrap(),
             );

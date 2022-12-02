@@ -164,15 +164,15 @@ pub fn part1(input: String) -> usize {
     let mut is_on = HashMap::<(i32, i32, i32), bool>::new();
     for i in input {
         for x in i.xmin..=i.xmax {
-            if x > 50 || x < -50 {
+            if !(-50..=50).contains(&x) {
                 continue;
             }
             for y in i.ymin..=i.ymax {
-                if y > 50 || y < -50 {
+                if !(-50..=50).contains(&y) {
                     continue;
                 }
                 for z in i.zmin..=i.zmax {
-                    if z > 50 || z < -50 {
+                    if !(-50..=50).contains(&z) {
                         continue;
                     }
                     is_on.insert((x, y, z), i.is_on);

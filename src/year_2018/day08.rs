@@ -57,8 +57,7 @@ pub fn metadata_for_sub_tree(node: usize, input: &[i32]) -> (usize, usize, usize
                 .sum::<i32>() as usize,
         (0..n_metadata)
             .map(|i| input[2 + child_size + node + i] as usize)
-            .map(|i| child_metadata_v2.get(i - 1))
-            .flatten()
+            .filter_map(|i| child_metadata_v2.get(i - 1))
             .sum::<i32>() as usize,
     )
 }

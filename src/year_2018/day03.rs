@@ -130,9 +130,9 @@ impl FromStr for Input {
                 str
             )));
         }
-        let (x, y) = parts[2].split_once(",").ok_or("couldn't parse x and y")?;
+        let (x, y) = parts[2].split_once(',').ok_or("couldn't parse x and y")?;
         let (w, h) = parts[3]
-            .split_once("x")
+            .split_once('x')
             .ok_or("couldn't parse width and height")?;
 
         let id = parts[0][1..].parse()?;

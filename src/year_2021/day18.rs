@@ -67,7 +67,7 @@ fn test() {
 
     let input = utils::read_file("2021/test_day18");
     assert_eq!(part1(input.clone()), 4140);
-    assert_eq!(part2(input.clone()), 3993);
+    assert_eq!(part2(input), 3993);
 }
 
 pub fn part2(input: String) -> u32 {
@@ -82,14 +82,13 @@ pub fn part2(input: String) -> u32 {
             input
                 .clone()
                 .into_iter()
-                .map(move |n2| {
+                .filter_map(move |n2| {
                     if n1 != n2 {
                         Some((n1.clone(), n2))
                     } else {
                         None
                     }
                 })
-                .flatten()
         })
         .map(|(n1, n2)| (n1.clone(), n2.clone(), add_numbers(n1, n2)));
     let max = input
@@ -372,11 +371,11 @@ fn traverse_number_right(input: Num) -> Vec<u8> {
         Tree::Leaf { v, right, .. } => {
             let mut ret = vec![*v];
             if let Some(right) = right.upgrade() {
-                ret.append(&mut traverse_number_right(right.clone()));
+                ret.append(&mut traverse_number_right(right));
             }
             ret
         }
-        Tree::Inner { left, .. } => return traverse_number_right(left.clone()),
+        Tree::Inner { left, .. } => traverse_number_right(left.clone()),
     }
 }
 
@@ -386,10 +385,10 @@ fn traverse_number_left(input: Num) -> Vec<u8> {
         Tree::Leaf { v, left, .. } => {
             let mut ret = vec![*v];
             if let Some(left) = left.upgrade() {
-                ret.append(&mut traverse_number_left(left.clone()));
+                ret.append(&mut traverse_number_left(left));
             }
             ret
         }
-        Tree::Inner { right, .. } => return traverse_number_left(right.clone()),
+        Tree::Inner { right, .. } => traverse_number_left(right.clone()),
     }
 }

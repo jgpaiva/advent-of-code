@@ -20,13 +20,13 @@ fn test() {
         }
     );
     let input = utils::read_file("2021/test_day16-1");
-    assert_eq!(part1(input.clone()), 16);
+    assert_eq!(part1(input), 16);
     let input = utils::read_file("2021/test_day16-2");
-    assert_eq!(part1(input.clone()), 12);
+    assert_eq!(part1(input), 12);
     let input = utils::read_file("2021/test_day16-3");
-    assert_eq!(part1(input.clone()), 23);
+    assert_eq!(part1(input), 23);
     let input = utils::read_file("2021/test_day16-4");
-    assert_eq!(part1(input.clone()), 31);
+    assert_eq!(part1(input), 31);
     assert_eq!(part2("C200B40A82".to_string()), 3);
     assert_eq!(part2("04005AC33890".to_string()), 54);
     assert_eq!(part2("880086C3E88112".to_string()), 7);
@@ -89,27 +89,9 @@ impl Packet {
                 1 => packets.iter().map(|p| p.apply()).product(),
                 2 => packets.iter().map(|p| p.apply()).min().unwrap(),
                 3 => packets.iter().map(|p| p.apply()).max().unwrap(),
-                5 => {
-                    if packets[0].apply() > packets[1].apply() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                6 => {
-                    if packets[0].apply() < packets[1].apply() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                7 => {
-                    if packets[0].apply() == packets[1].apply() {
-                        1
-                    } else {
-                        0
-                    }
-                }
+                5 => usize::from(packets[0].apply() > packets[1].apply()),
+                6 => usize::from(packets[0].apply() < packets[1].apply()),
+                7 => usize::from(packets[0].apply() == packets[1].apply()),
                 _ => unreachable!(),
             },
         }

@@ -126,12 +126,12 @@ impl Op {
             Op::Bori(a1, v, reg) => r[*reg] = r[*a1] | v,
             Op::Setr(a1, _, reg) => r[*reg] = r[*a1],
             Op::Seti(v, _, reg) => r[*reg] = *v,
-            Op::Gtir(v, a2, reg) => r[*reg] = if *v > r[*a2] { 1 } else { 0 },
-            Op::Gtri(a1, v, reg) => r[*reg] = if r[*a1] > *v { 1 } else { 0 },
-            Op::Gtrr(a1, a2, reg) => r[*reg] = if r[*a1] > r[*a2] { 1 } else { 0 },
-            Op::Eqir(v, a2, reg) => r[*reg] = if *v == r[*a2] { 1 } else { 0 },
-            Op::Eqri(a1, v, reg) => r[*reg] = if r[*a1] == *v { 1 } else { 0 },
-            Op::Eqrr(a1, a2, reg) => r[*reg] = if r[*a1] == r[*a2] { 1 } else { 0 },
+            Op::Gtir(v, a2, reg) => r[*reg] = usize::from(*v > r[*a2]),
+            Op::Gtri(a1, v, reg) => r[*reg] = usize::from(r[*a1] > *v),
+            Op::Gtrr(a1, a2, reg) => r[*reg] = usize::from(r[*a1] > r[*a2]),
+            Op::Eqir(v, a2, reg) => r[*reg] = usize::from(*v == r[*a2]),
+            Op::Eqri(a1, v, reg) => r[*reg] = usize::from(r[*a1] == *v),
+            Op::Eqrr(a1, a2, reg) => r[*reg] = usize::from(r[*a1] == r[*a2]),
         }
     }
 }
@@ -218,7 +218,7 @@ fn parse(input: String) -> (Vec<Vec<usize>>, Vec<(Vec<usize>, Vec<usize>, Vec<us
                     .split_once("Before: [")
                     .unwrap()
                     .1
-                    .split_once("]")
+                    .split_once(']')
                     .unwrap()
                     .0
                     .split(", ")
@@ -231,7 +231,7 @@ fn parse(input: String) -> (Vec<Vec<usize>>, Vec<(Vec<usize>, Vec<usize>, Vec<us
                     .split_once("After:  [")
                     .unwrap()
                     .1
-                    .split_once("]")
+                    .split_once(']')
                     .unwrap()
                     .0
                     .split(", ")

@@ -273,7 +273,7 @@ fn test_next_moves() {
     let b = z("..[..]C[..]A[..].[.A]D.");
     assert_eq!(
         next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
-        HashSet::from([(z("..[..]C[..]A[..]A[..]D."), 3 * 1),])
+        HashSet::from([(z("..[..]C[..]A[..]A[..]D."), 3),])
     );
     let b = z("..[..]D[..].[..]A[.A]D.");
     assert_eq!(
@@ -289,7 +289,7 @@ fn test_next_moves() {
     assert_eq!(
         next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
         HashSet::from([
-            (z("..[.A].[..]B[..]C[..]D."), 3 * 1),
+            (z("..[.A].[..]B[..]C[..]D."), 3),
             (z("..[..]A[.B].[..]C[..]D."), 3 * 10),
             (z("..[..]A[..]B[.C].[..]D."), 3 * 100),
             (z("..[..]A[..]B[..]C[.D].."), 3 * 1000),
@@ -318,7 +318,7 @@ fn test_next_moves() {
     let b = z("..[....]C[....]A[....].[...A]D.");
     assert_eq!(
         next_moves(&b, 0).into_iter().collect::<HashSet<_>>(),
-        HashSet::from([(z("..[....]C[....]A[....]A[....]D."), 5 * 1),])
+        HashSet::from([(z("..[....]C[....]A[....]A[....]D."), 5),])
     );
 }
 
@@ -738,8 +738,7 @@ fn explore_recur(
     moves.sort_by(|m1, m2| m1.1.cmp(&m2.1));
     moves
         .into_iter()
-        .map(|(m, c)| explore_recur(m, c, memoize))
-        .flatten()
+        .filter_map(|(m, c)| explore_recur(m, c, memoize))
         .min_by(|r1, r2| r1.0.cmp(&r2.0))
         .map(|(d, path)| {
             let mut ret = vec![(b, c)];
@@ -790,8 +789,10 @@ fn parse(input: &str) -> Board {
 
 #[cfg(test)]
 fn z(b: &str) -> Board {
-    let mut board = Board::default();
-    board.depth = if b.len() == 23 { 2 } else { 4 };
+    let mut board = Board {
+        depth: if b.len() == 23 { 2 } else { 4 },
+        ..Default::default()
+    };
     let mut c = b.chars();
     board.hallway_0 = parse_char(c.next().unwrap());
     board.hallway_1 = parse_char(c.next().unwrap());

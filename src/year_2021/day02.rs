@@ -11,7 +11,7 @@ fn test() {
 pub fn part2(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
-        .map(|x| x.split_once(" ").unwrap())
+        .map(|x| x.split_once(' ').unwrap())
         .map(|(c, v)| match c {
             "forward" => Day5Commands::Forward(v.parse().unwrap()),
             "down" => Day5Commands::Down(v.parse().unwrap()),
@@ -44,7 +44,7 @@ enum Day5Commands {
 pub fn part1(lines: &[String]) -> i32 {
     let lines = lines
         .iter()
-        .map(|x| x.split_once(" ").unwrap())
+        .map(|x| x.split_once(' ').unwrap())
         .map(|(c, v)| match c {
             "forward" => Day5Commands::Forward(v.parse().unwrap()),
             "down" => Day5Commands::Down(v.parse().unwrap()),

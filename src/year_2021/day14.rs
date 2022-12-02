@@ -20,7 +20,7 @@ fn test() {
         calculate_efficiently('N', 'N', 2, &l1_mapping, &mut memoization),
         HashMap::from([('N', 3)])
     );
-    assert_eq!(part2(input.clone(), 40), 2188189693529);
+    assert_eq!(part2(input, 40), 2188189693529);
 }
 
 pub fn part2(input: String, iterations: u8) -> u64 {

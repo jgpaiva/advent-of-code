@@ -7,7 +7,7 @@ use crate::utils;
 fn test() {
     let input = utils::read_file("2021/test_day19");
     assert_eq!(part1(input.clone()), 79);
-    assert_eq!(part2(input.clone()), 3621);
+    assert_eq!(part2(input), 3621);
 }
 
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
@@ -219,8 +219,8 @@ fn find_valid_rotation(
 ) -> Option<(Rotation, (i32, i32, i32))> {
     let mut rotations_and_translations = HashMap::<(Rotation, P), u32>::new();
     for rotation in Rotation::rotations() {
-        for point in scanners[second_scanner_i].iter().cloned() {
-            let new_point = rotation.apply(&point);
+        for point in scanners[second_scanner_i].iter() {
+            let new_point = rotation.apply(point);
             for i in scanners[first_scanner_i].iter().cloned() {
                 let translation = (new_point.0 - i.0, new_point.1 - i.1, new_point.2 - i.2);
                 let e = rotations_and_translations

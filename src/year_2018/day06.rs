@@ -19,17 +19,13 @@ pub fn part2(lines: Vec<String>, n: i32) -> String {
         .flat_map(|x| {
             let map = &map;
             (min_y..max_y + 1).map(move |y| {
-                if map
-                    .v
-                    .iter()
-                    .map(|p| p.distance(&Point { x, y }))
-                    .sum::<i32>()
-                    < n
-                {
-                    1
-                } else {
-                    0
-                }
+                i32::from(
+                    map.v
+                        .iter()
+                        .map(|p| p.distance(&Point { x, y }))
+                        .sum::<i32>()
+                        < n,
+                )
             })
         })
         .sum::<i32>()

@@ -59,7 +59,7 @@ pub fn day04(lines: Vec<String>) -> String {
         .into_iter()
         .max_by(|(_id1, dur1), (_id2, dur2)| dur1.cmp(dur2))
         .unwrap();
-    let best_sleeper_sleep_cycles: Vec<&SleepCycle> = (&sleep_cycles)
+    let best_sleeper_sleep_cycles: Vec<&SleepCycle> = sleep_cycles
         .iter()
         .filter(|x| x.id == max_sleep_id)
         .collect();
@@ -191,13 +191,13 @@ impl FromStr for Input {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (ts, rest) = s
-            .split_once("]")
+            .split_once(']')
             .ok_or(format!("couldn't parse line {}", s))?;
         let (_, ts) = ts
             .split_once("1518-")
             .ok_or(format!("couldn't parse line {}", s))?;
         let (day, minute) = ts
-            .split_once(" ")
+            .split_once(' ')
             .ok_or(format!("couldn't parse line {}", s))?;
         let day: i32 = day
             .chars()

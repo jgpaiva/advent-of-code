@@ -6,7 +6,7 @@ fn test() {
     let input = utils::read_file("2021/test_day11");
     assert_eq!(part1(input.clone(), 10), 204);
     assert_eq!(part1(input.clone(), 100), 1656);
-    assert_eq!(part2(input.clone(), 200), 195);
+    assert_eq!(part2(input, 200), 195);
 }
 
 pub fn part2(input: String, steps: u32) -> u32 {

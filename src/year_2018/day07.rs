@@ -188,10 +188,7 @@ fn visit(
     visiting.insert(node);
     let mut node_s_edges: Vec<char> = edges
         .get(&node)
-        .unwrap_or(&vec![])
-        .iter()
-        .copied()
-        .collect();
+        .unwrap_or(&vec![]).to_vec();
     node_s_edges.sort_unstable();
     for node in node_s_edges {
         visit(node, visiting, open_nodes, output, edges);

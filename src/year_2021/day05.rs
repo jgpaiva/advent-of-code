@@ -5,7 +5,7 @@ use crate::utils;
 
 #[test]
 fn test() {
-    let input = utils::read_file("2021/test_day05");
+    let input = utils::read_test_file(file!());
     assert_eq!(part1(input.clone()), 5);
     assert_eq!(part2(input), 12);
 }
@@ -81,10 +81,7 @@ fn parse(lines: String, include_diagonal: bool) -> Vec<((i32, i32), (i32, i32))>
         })
         .collect();
     if !(include_diagonal) {
-        input = input
-            .into_iter()
-            .filter(|(from, to)| from.0 == to.0 || from.1 == to.1)
-            .collect();
+        input.retain(|(from, to)| from.0 == to.0 || from.1 == to.1);
     }
     input
 }

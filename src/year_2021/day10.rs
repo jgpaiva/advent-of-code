@@ -5,14 +5,13 @@ use crate::utils;
 fn test() {
     let input = utils::read_file("2021/test_day10");
     assert_eq!(part1(input.clone()), 26397);
-    assert_eq!(part2(input.clone()), 288957);
+    assert_eq!(part2(input), 288957);
 }
 
 pub fn part2(input: String) -> u64 {
     let mut res: Vec<_> = input
         .split_terminator('\n')
-        .map(|line| calculate_line(line).1)
-        .flatten()
+        .filter_map(|line| calculate_line(line).1)
         .collect();
     res.sort_unstable();
     res[res.len() / 2]

@@ -8,7 +8,7 @@ fn test() {
     let input = utils::read_file("2021/test_day13");
     assert_eq!(part1(input.clone()), 17);
     assert_eq!(
-        part2(input.clone()),
+        part2(input),
         r#"#####
 #...#
 #...#
@@ -56,7 +56,7 @@ pub fn part2(input: String) -> String {
 #[allow(clippy::branches_sharing_code)]
 pub fn part1(input: String) -> usize {
     let (points, folds) = parse(input);
-    let first_fold = folds.get(0).cloned().unwrap();
+    let first_fold = folds.first().cloned().unwrap();
     let points: HashSet<(i32, i32)> = if first_fold.0 == 'y' {
         let y = first_fold.1;
         points

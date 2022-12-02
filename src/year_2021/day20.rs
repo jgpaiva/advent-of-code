@@ -5,7 +5,7 @@ use crate::utils;
 fn test() {
     let input = utils::read_file("2021/test_day20");
     assert_eq!(part1(input.clone()), 35);
-    assert_eq!(part2(input.clone()), 3351);
+    assert_eq!(part2(input), 3351);
 }
 
 pub fn part2(input: String) -> usize {
