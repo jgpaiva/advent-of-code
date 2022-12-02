@@ -401,7 +401,7 @@ fn parse_board(input: String, elf_attack_power: u8) -> Board {
                         counter += 1;
                         counter
                     }),
-                    v => unreachable!(v),
+                    v => unreachable!("{}", v),
                 };
                 BoardEl { p: (x, y), el }
             })

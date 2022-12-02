@@ -1,13 +1,25 @@
 mod year_2018;
 mod year_2021;
+mod year_2022;
 
 mod utils;
 use utils::*;
 
 fn main() {
     let skip_slow = true;
+    let show_old_years = false;
+    days_2022(skip_slow);
+    if show_old_years {
     days_2021(skip_slow);
     days_2018(skip_slow);
+    }
+}
+
+fn days_2022(_skip_slow: bool) {
+    use year_2022::*;
+    println!("2022");
+    println!("day01 part 1: {}", day01::part1(&read_lines("2022/day01")));
+    println!("day01 part 2: {}", day01::part2(&read_lines("2022/day01")));
 }
 
 fn days_2021(skip_slow: bool) {
