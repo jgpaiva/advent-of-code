@@ -34,3 +34,19 @@ pub fn read_test_file(source_file_name: &str) -> String {
     let file_name = &format!("{year}/test_day{day}");
     fs::read_to_string(format!("data/{}.txt", file_name)).expect("error reading file")
 }
+
+#[macro_export]
+macro_rules! day {
+    ($i:ident) => {
+        println!(
+            "{} part 1: {}",
+            stringify!($i),
+            $i::part1(&read_file(format!("2022/{}", stringify!($i)).as_str()))
+        );
+        println!(
+            "{} part 2: {}",
+            stringify!($i),
+            $i::part2(&read_file(format!("2022/{}", stringify!($i)).as_str()))
+        );
+    };
+}

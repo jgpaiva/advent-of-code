@@ -21,27 +21,13 @@ fn main() {
     }
 }
 
-macro_rules! day {
-    ($i:ident) => {
-        println!(
-            "{} part 1: {}",
-            stringify!($i),
-            $i::part1(&read_file(format!("2022/{}", stringify!($i)).as_str()))
-        );
-        println!(
-            "{} part 2: {}",
-            stringify!($i),
-            $i::part2(&read_file(format!("2022/{}", stringify!($i)).as_str()))
-        );
-    };
-}
-
 fn days_2022(_skip_slow: bool) {
     use year_2022::*;
     println!("2022");
     day!(day01);
     day!(day02);
     day!(day03);
+    day!(day04);
 }
 
 fn days_2021(skip_slow: bool) {
