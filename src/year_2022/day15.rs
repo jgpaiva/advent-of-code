@@ -9,7 +9,7 @@ use regex::Regex;
 #[test]
 fn test() {
     let input = utils::read_test_file(file!());
-    assert_eq!(part1(&input), 26);
+    assert_eq!(calculate_line(&input, 10), 26);
     assert_eq!(part2(&input), 93);
 }
 
@@ -19,11 +19,14 @@ pub fn part2(lines: &str) -> i32 {
 }
 
 pub fn part1(lines: &str) -> usize {
+    let line = 2000000;
+    calculate_line(lines, line)
+}
+
+fn calculate_line(lines: &str, line: i32) -> usize {
     let input = parse_input(lines).unwrap();
-    dbg!(&input);
-    let line = 10;
     let mut affected_positions = HashSet::<i32>::new();
-    for (sensor, beacon) in input {
+    for (sensor, beacon) in input.iter() {
         let d_beacon = (sensor.0 - beacon.0).abs() + (sensor.1 - beacon.1).abs();
         // can affect the line if distance from line to sensor is < than sensor to beacon
         let d_line = (sensor.1 - line).abs();
@@ -31,6 +34,11 @@ pub fn part1(lines: &str) -> usize {
             for i in sensor.0 - (d_beacon - d_line)..=sensor.0 + (d_beacon - d_line) {
                 affected_positions.insert(i);
             }
+        }
+    }
+    for (_, beacon) in input {
+        if beacon.1 == line {
+            affected_positions.remove(&beacon.0);
         }
     }
     affected_positions.len()
