@@ -1,4 +1,7 @@
-use std::collections::{hash_map::Entry, HashMap, HashSet, VecDeque};
+use std::{
+    collections::{hash_map::Entry, BTreeSet, BinaryHeap, HashMap, HashSet, VecDeque},
+    fmt::Display,
+};
 
 #[cfg(test)]
 use crate::utils;
@@ -9,7 +12,7 @@ use regex::Regex;
 #[test]
 fn test() {
     let input = utils::read_test_file(file!());
-    assert_eq!(part1(&input), 26);
+    assert_eq!(part1(&input), 1651);
     //assert_eq!(part2(&input), 56000011);
 }
 
@@ -36,9 +39,9 @@ struct Node {
 /// II - rate=0;  -> AA, JJ
 /// JJ - rate=21; -> II
 ///
-/// CC$ - DD$ - EE$ - FF# - GG# - HH$
+/// CC 02 - DD 20 - EE 03 - FF 00 - GG 00 - HH 22
 ///  |     |
-/// BB$ - AA# - II# - JJ$
+/// BB 13 - AA 00 - II 00 - JJ 21
 ///
 /// interesting:
 /// B, C, D, E, H, J
@@ -48,40 +51,141 @@ struct Node {
 /// A, B, C, D, E, J, H
 /// A, B, C, D,#E, H, J -- repeat
 ///
-pub fn part1(lines: &str) -> i32 {
+pub fn part1(lines: &str) -> u32 {
     let nodes = parse_nodes(lines);
-    let paths: Vec<Vec<Vec<usize>>> = (0..nodes.len()).map(|s| paths_from(s, &nodes)).collect();
-    let interesting_nodes: HashSet<_> = nodes
+    let paths: Vec<Vec<Path>> = (0..nodes.len()).map(|s| paths_from(s, &nodes)).collect();
+    let interesting_nodes: BTreeSet<_> = nodes
         .iter()
-        .filter_map(|n| (n.flow > 0).then_some(n.id))
+        .filter_map(|n| (n.flow > 0).then_some(UnopenedNode(n.flow, n.id)))
         .collect();
-    let valid_paths = valid_paths(vec![0], interesting_nodes, &paths);
-    0
+    let PathState {
+        path,
+        value,
+        at_round,
+        opened_nodes,
+        nodes_to_open,
+    } = best_path(0, interesting_nodes, &paths);
+    println!(
+        "path: {}",
+        path.iter()
+            .map(|n| nodes[*n].name.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    );
+    println!("value: {value}, at_round: {at_round}, opened_nodes: {opened_nodes:?}, nodes_to_open: {nodes_to_open:?}");
+    value
 }
 
-fn valid_paths(
-    current_path: Vec<usize>,
-    interesting_nodes: HashSet<usize>,
-    paths: &Vec<Vec<Vec<usize>>>,
-) {
-    let current_node = *current_path.last().unwrap();
-    for next_node in interesting_nodes.iter().cloned() {
-        let next_path = paths[current_node][next_node].clone();
-        let mut interesting_nodes = interesting_nodes.clone();
-        for n in next_path.iter() {
-            interesting_nodes.remove(n);
+#[derive(Eq, PartialEq, Clone, Debug)]
+struct UnopenedNode(u32, usize);
+impl PartialOrd for UnopenedNode {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for UnopenedNode {
+    /// reverse comparison order, so that larger ones come first
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.0.cmp(&self.0)
+    }
+}
+
+type Path = Vec<usize>;
+
+#[derive(Eq, PartialEq)]
+struct PathState {
+    path: Path,
+    value: u32,
+    at_round: i32,
+    opened_nodes: Vec<(usize, i32, u32)>,
+    nodes_to_open: BTreeSet<UnopenedNode>,
+}
+
+impl PathState {
+    fn potential_value(&self) -> u32 {
+        // 5 rounds
+        // at round 1
+        // 2 valves left
+        // 1: 1 round to go A,
+        // 2: 1 round to enable A,
+        // 3: 1 round to go to B, (A flows)
+        // 4: 1 round to enable B, (A flows)
+        // 5: 1 round of A, B flowing
+        // 3*A + B
+        // (5 - 2) * A + (5 - 2 - 2)*B
+        self.value
+            + self
+                .nodes_to_open
+                .iter()
+                .enumerate()
+                .map(|(i, UnopenedNode(flow, _n))| {
+                    (30 - self.at_round - (2 * i as i32)).max(0) as u32 * flow
+                })
+                .sum::<u32>()
+    }
+}
+
+impl PartialOrd for PathState {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for PathState {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.potential_value().cmp(&other.potential_value())
+    }
+}
+
+fn best_path(
+    start: usize,
+    interesting_nodes: BTreeSet<UnopenedNode>,
+    paths: &[Vec<Path>],
+) -> PathState {
+    let mut to_explore = BinaryHeap::from([PathState {
+        path: vec![start],
+        value: 0_u32,
+        at_round: 0,
+        opened_nodes: Default::default(),
+        nodes_to_open: interesting_nodes,
+    }]);
+    loop {
+        let Some(PathState{ path, value, at_round, opened_nodes, nodes_to_open }) = to_explore.pop() else {
+                unreachable!("we've ran out of paths, and none of them got to close all nodes?");
+            };
+        if nodes_to_open.is_empty() {
+            // done, found the cheapest one
+            return PathState {
+                path,
+                value,
+                at_round,
+                opened_nodes,
+                nodes_to_open,
+            };
         }
-        if interesting_nodes.is_empty() {
-            // already visited all of the interesting nodes
-            //println!("{:?}:{:?}", current_path, next_path);
-        } else if current_path.len() + next_path.len() - 1 <= 30 {
-            let mut current_path = current_path.clone();
-            assert!(
-                next_path.len() > 1,
-                "next_path: {next_path:?} current_path: {current_path:?} next_node: {next_node} paths: {paths:?}"
-            );
-            current_path.extend_from_slice(&next_path.as_slice()[1..]);
-            valid_paths(current_path, interesting_nodes, paths)
+        let current_node = *path.last().unwrap();
+        for next_node in nodes_to_open.iter().cloned() {
+            let mut next_nodes_to_open = nodes_to_open.clone();
+            next_nodes_to_open.remove(&next_node);
+            let next_path = &paths[current_node][next_node.1];
+            let current_round = at_round + 1 + (next_path.len() as i32 - 1);
+            let mut path = path.clone();
+            path.extend_from_slice(&next_path.as_slice()[1..]);
+
+            let node_value = (30 - current_round).max(0) as u32 * next_node.0;
+            let value = value + node_value;
+
+            let mut next_opened_nodes = opened_nodes.clone();
+            next_opened_nodes.push((next_node.1, current_round, node_value));
+
+            to_explore.push(PathState {
+                path,
+                value,
+                at_round: current_round,
+                opened_nodes: next_opened_nodes,
+                nodes_to_open: next_nodes_to_open,
+            });
         }
     }
 }
@@ -122,7 +226,7 @@ fn test_paths_from() {
     );
 }
 
-fn paths_from(start: usize, nodes: &[Node]) -> Vec<Vec<usize>> {
+fn paths_from(start: usize, nodes: &[Node]) -> Vec<Path> {
     let mut to_explore = VecDeque::from([vec![start]]);
     let mut paths: Vec<_> = (0..nodes.len()).map(|_| Vec::with_capacity(0)).collect();
     // path to one-self is trivial

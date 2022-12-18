@@ -1,3 +1,4 @@
+Valve AA has flow rate=0; tunnels lead to valves LK, AP, IZ, PC, QD
 Valve AP has flow rate=0; tunnels lead to valves AA, ON
 Valve QN has flow rate=21; tunnels lead to valves RI, CG
 Valve LK has flow rate=0; tunnels lead to valves XM, AA
@@ -12,7 +13,6 @@ Valve SE has flow rate=17; tunnels lead to valves YR, AD
 Valve TR has flow rate=0; tunnels lead to valves AL, CS
 Valve BS has flow rate=0; tunnels lead to valves YH, XM
 Valve IJ has flow rate=24; tunnels lead to valves XN, WE
-Valve AA has flow rate=0; tunnels lead to valves LK, AP, IZ, PC, QD
 Valve KG has flow rate=0; tunnels lead to valves KD, CS
 Valve QV has flow rate=0; tunnels lead to valves XM, II
 Valve PC has flow rate=0; tunnels lead to valves AA, YF
