@@ -58,21 +58,26 @@ pub fn part1(lines: &str) -> u32 {
         .iter()
         .filter_map(|n| (n.flow > 0).then_some(UnopenedNode(n.flow, n.id)))
         .collect();
+    let aa_id = nodes.iter().find(|n| n.name == "AA").unwrap().id;
     let PathState {
-        path,
+        path: _path,
         value,
-        at_round,
-        opened_nodes,
-        nodes_to_open,
-    } = best_path(0, interesting_nodes, &paths);
-    println!(
-        "path: {}",
-        path.iter()
-            .map(|n| nodes[*n].name.to_string())
-            .collect::<Vec<_>>()
-            .join(",")
-    );
-    println!("value: {value}, at_round: {at_round}, opened_nodes: {opened_nodes:?}, nodes_to_open: {nodes_to_open:?}");
+        at_round: _at_round,
+        opened_nodes: _opened_nodes,
+        nodes_to_open: _nodes_to_open,
+    } = best_path(aa_id, interesting_nodes, &paths);
+    #[cfg(test)]
+    {
+        println!(
+            "path: {}",
+            _path
+                .iter()
+                .map(|n| nodes[*n].name.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        println!("value: {value}, at_round: {_at_round}, opened_nodes: {_opened_nodes:?}, nodes_to_open: {_nodes_to_open:?}");
+    }
     value
 }
 
