@@ -13,11 +13,47 @@ use regex::Regex;
 fn test() {
     let input = utils::read_test_file(file!());
     assert_eq!(part1(&input), 1651);
-    //assert_eq!(part2(&input), 56000011);
+    assert_eq!(part2(&input), 1707);
 }
 
-pub fn part2(lines: &str) -> u64 {
-    0
+pub fn part2(lines: &str) -> u32 {
+    let nodes = parse_nodes(lines);
+    let paths: Vec<Vec<Path>> = (0..nodes.len()).map(|s| paths_from(s, &nodes)).collect();
+    let interesting_nodes: BTreeSet<_> = nodes
+        .iter()
+        .filter_map(|n| (n.flow > 0).then_some(UnopenedNode(n.flow, n.id)))
+        .collect();
+    let aa_id = nodes.iter().find(|n| n.name == "AA").unwrap().id;
+    let PathState {
+        paths: _paths,
+        value,
+        opened_nodes: _opened_nodes,
+        nodes_to_open: _nodes_to_open,
+    } = best_path(aa_id, interesting_nodes, &paths, 26_u16, 2);
+    #[cfg(test)]
+    {
+        println!(
+            "path1: {}",
+            _paths[0]
+                .0
+                .iter()
+                .map(|n| nodes[*n].name.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        println!(
+            "path2: {}",
+            _paths[1]
+                .0
+                .iter()
+                .map(|n| nodes[*n].name.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        println!("value: {value}, rounds_left1: {}, rounds_left2: {}, opened_nodes: {:?}, nodes_to_open: {_nodes_to_open:?}", 
+        _paths[0].1, _paths[1].1,_opened_nodes.into_iter().map(|(n,r,v)| (nodes[n].name.clone(),r,v)).collect::<Vec<_>>());
+    }
+    value
 }
 
 #[derive(Debug)]
@@ -60,23 +96,28 @@ pub fn part1(lines: &str) -> u32 {
         .collect();
     let aa_id = nodes.iter().find(|n| n.name == "AA").unwrap().id;
     let PathState {
-        path: _path,
+        paths: _paths,
         value,
-        at_round: _at_round,
         opened_nodes: _opened_nodes,
         nodes_to_open: _nodes_to_open,
-    } = best_path(aa_id, interesting_nodes, &paths);
+    } = best_path(aa_id, interesting_nodes, &paths, 30_u16, 1);
     #[cfg(test)]
     {
         println!(
             "path: {}",
-            _path
+            _paths
+                .first()
+                .unwrap()
+                .0
                 .iter()
                 .map(|n| nodes[*n].name.to_string())
                 .collect::<Vec<_>>()
                 .join(",")
         );
-        println!("value: {value}, at_round: {_at_round}, opened_nodes: {_opened_nodes:?}, nodes_to_open: {_nodes_to_open:?}");
+        println!("value: {value}, rounds_left: {}, opened_nodes: {_opened_nodes:?}, nodes_to_open: {_nodes_to_open:?}", _paths
+        .first()
+        .unwrap()
+        .1);
     }
     value
 }
@@ -100,10 +141,9 @@ type Path = Vec<usize>;
 
 #[derive(Eq, PartialEq)]
 struct PathState {
-    path: Path,
+    paths: Vec<(Path, u16)>,
     value: u32,
-    at_round: i32,
-    opened_nodes: Vec<(usize, i32, u32)>,
+    opened_nodes: Vec<(usize, u16, u32)>,
     nodes_to_open: BTreeSet<UnopenedNode>,
 }
 
@@ -125,7 +165,14 @@ impl PathState {
                 .iter()
                 .enumerate()
                 .map(|(i, UnopenedNode(flow, _n))| {
-                    (30 - self.at_round - (2 * i as i32)).max(0) as u32 * flow
+                    (self
+                        .paths
+                        .iter()
+                        .map(|(_p, rounds_left)| rounds_left)
+                        .sum::<u16>() as i32
+                        - (2 * i as i32))
+                        .max(0) as u32
+                        * flow
                 })
                 .sum::<u32>()
     }
@@ -147,50 +194,70 @@ fn best_path(
     start: usize,
     interesting_nodes: BTreeSet<UnopenedNode>,
     paths: &[Vec<Path>],
+    starting_round: u16,
+    num_explorers: u8,
 ) -> PathState {
     let mut to_explore = BinaryHeap::from([PathState {
-        path: vec![start],
+        paths: (0..num_explorers)
+            .map(|_| (vec![start], starting_round))
+            .collect(),
         value: 0_u32,
-        at_round: 0,
         opened_nodes: Default::default(),
         nodes_to_open: interesting_nodes,
     }]);
     loop {
-        let Some(PathState{ path, value, at_round, opened_nodes, nodes_to_open }) = to_explore.pop() else {
+        let Some(PathState{ paths: past_paths, value, opened_nodes, nodes_to_open }) = to_explore.pop() else {
                 unreachable!("we've ran out of paths, and none of them got to close all nodes?");
             };
         if nodes_to_open.is_empty() {
             // done, found the cheapest one
             return PathState {
-                path,
+                paths: past_paths,
                 value,
-                at_round,
                 opened_nodes,
                 nodes_to_open,
             };
         }
-        let current_node = *path.last().unwrap();
-        for next_node in nodes_to_open.iter().cloned() {
-            let mut next_nodes_to_open = nodes_to_open.clone();
-            next_nodes_to_open.remove(&next_node);
-            let next_path = &paths[current_node][next_node.1];
-            let current_round = at_round + 1 + (next_path.len() as i32 - 1);
-            let mut path = path.clone();
-            path.extend_from_slice(&next_path.as_slice()[1..]);
+        for (current_path_index, (path, rounds_left)) in past_paths.iter().enumerate() {
+            let current_node = *path.last().unwrap();
+            if current_node == 0 && current_path_index == 1 && past_paths[0].0.len() == 1 {
+                // don't repeat the paths with 2 diff orders
+                continue;
+            }
+            for next_node in nodes_to_open.iter().cloned() {
+                let mut next_nodes_to_open = nodes_to_open.clone();
+                next_nodes_to_open.remove(&next_node);
+                let next_path = &paths[current_node][next_node.1];
+                let current_round_cost = 1 + (next_path.len() as u16 - 1);
 
-            let node_value = (30 - current_round).max(0) as u32 * next_node.0;
-            let value = value + node_value;
+                let rounds_left = (*rounds_left as i32 - current_round_cost as i32).max(0) as u16;
+                let node_value = rounds_left as u32 * next_node.0;
+                let value = value + node_value;
 
-            let mut next_opened_nodes = opened_nodes.clone();
-            next_opened_nodes.push((next_node.1, current_round, node_value));
+                let mut next_opened_nodes = opened_nodes.clone();
+                next_opened_nodes.push((next_node.1, starting_round - rounds_left, node_value));
 
-            to_explore.push(PathState {
-                path,
-                value,
-                at_round: current_round,
-                opened_nodes: next_opened_nodes,
-                nodes_to_open: next_nodes_to_open,
-            });
+                let past_paths = past_paths
+                    .iter()
+                    .enumerate()
+                    .map(|(i, past_path)| {
+                        if i == current_path_index {
+                            let mut path = path.clone();
+                            path.extend_from_slice(&next_path.as_slice()[1..]);
+                            (path, rounds_left)
+                        } else {
+                            past_path.clone()
+                        }
+                    })
+                    .collect();
+
+                to_explore.push(PathState {
+                    paths: past_paths,
+                    value,
+                    opened_nodes: next_opened_nodes,
+                    nodes_to_open: next_nodes_to_open,
+                });
+            }
         }
     }
 }
