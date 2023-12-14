@@ -1,7 +1,7 @@
 # Advent of code
 My Rust🦀 solutions for coding puzzles at https://adventofcode.com/
 
-Currently features some solutions for the years [2021](src/year_2021) and [2018](src/year_2018). Each of these folders has several of files, each corresponding to a day in that year. Each file has one publicly exported function for each of the two parts of the daily puzzles.
+Currently features some solutions for the years [2023](src/year_2023), [2022](src/year_2022), [2021](src/year_2021) and [2018](src/year_2018). Each of these folders has several files, each corresponding to a day in that year. Each file has one publicly exported function for each of the two parts of the daily puzzles.
 
 ## Running
 

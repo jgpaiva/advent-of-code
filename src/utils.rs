@@ -37,19 +37,19 @@ pub fn read_test_file(source_file_name: &str) -> String {
 
 #[macro_export]
 macro_rules! day {
-    ($i:ident) => {
+    ($y:literal, $i:ident) => {
         let now = std::time::Instant::now();
         print!(
             "{} part 1: {}",
             stringify!($i),
-            $i::part1(&read_file(format!("2022/{}", stringify!($i)).as_str()))
+            $i::part1(&read_file(format!("{}/{}", $y, stringify!($i)).as_str()))
         );
         println!("({} secs)", now.elapsed().as_secs());
         let now = std::time::Instant::now();
         print!(
             "{} part 2: {}",
             stringify!($i),
-            $i::part2(&read_file(format!("2022/{}", stringify!($i)).as_str()))
+            $i::part2(&read_file(format!("{}/{}", $y, stringify!($i)).as_str()))
         );
         println!("({} secs)", now.elapsed().as_secs());
     };

@@ -7,41 +7,57 @@ mod year_2021 {
 mod year_2022 {
     automod::dir!(pub "src/year_2022");
 }
+mod year_2023 {
+    automod::dir!(pub "src/year_2023");
+}
 
 mod utils;
 use utils::*;
 
 fn main() {
     let skip_slow = true;
-    let show_old_years = false;
-    days_2022(skip_slow);
-    if show_old_years {
+    let skip_old_years = true;
+    days_2023(skip_slow);
+    if !skip_old_years {
+        days_2022(skip_slow);
         days_2021(skip_slow);
         days_2018(skip_slow);
     }
 }
 
+fn days_2023(_skip_slow: bool) {
+    use year_2023::day01;
+    use year_2023::day02;
+    use year_2023::day03;
+    use year_2023::day08;
+    println!("2023");
+    day!(2023, day01);
+    day!(2023, day02);
+    day!(2023, day03);
+    day!(2023, day08);
+}
+
 fn days_2022(skip_slow: bool) {
     use year_2022::*;
     println!("2022");
-    day!(day01);
-    day!(day02);
-    day!(day03);
-    day!(day04);
-    day!(day05);
-    day!(day06);
-    day!(day07);
-    day!(day08);
-    day!(day09);
-    day!(day10);
-    day!(day11);
-    day!(day12);
-    day!(day13);
-    day!(day14);
+    day!(2022, day01);
+    day!(2022, day02);
+    day!(2022, day03);
+    day!(2022, day04);
+    day!(2022, day05);
+    day!(2022, day06);
+    day!(2022, day07);
+    day!(2022, day08);
+    day!(2022, day09);
+    day!(2022, day10);
+    day!(2022, day11);
+    day!(2022, day12);
+    day!(2022, day13);
+    day!(2022, day14);
     if !skip_slow {
-        day!(day15);
+        day!(2022, day15);
     }
-    day!(day16);
+    day!(2022, day16);
 }
 
 fn days_2021(skip_slow: bool) {

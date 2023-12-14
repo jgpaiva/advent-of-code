@@ -1,7 +1,4 @@
-use std::{
-    collections::{hash_map::Entry, BTreeSet, BinaryHeap, HashMap, HashSet, VecDeque},
-    fmt::Display,
-};
+use std::collections::{BTreeSet, BinaryHeap, HashMap, VecDeque};
 
 #[cfg(test)]
 use crate::utils;
@@ -29,7 +26,8 @@ pub fn part2(lines: &str) -> u32 {
         value,
         opened_nodes: _opened_nodes,
         nodes_to_open: _nodes_to_open,
-    } = best_path(aa_id, interesting_nodes, &paths, 26_u16, 2);
+        ..
+    } = best_path(&nodes, aa_id, interesting_nodes, &paths, 26_u16, 2);
     #[cfg(test)]
     {
         println!(
@@ -82,11 +80,6 @@ struct Node {
 /// interesting:
 /// B, C, D, E, H, J
 ///
-/// possible:
-/// A, B, C, D, E, H, J
-/// A, B, C, D, E, J, H
-/// A, B, C, D,#E, H, J -- repeat
-///
 pub fn part1(lines: &str) -> u32 {
     let nodes = parse_nodes(lines);
     let paths: Vec<Vec<Path>> = (0..nodes.len()).map(|s| paths_from(s, &nodes)).collect();
@@ -100,7 +93,8 @@ pub fn part1(lines: &str) -> u32 {
         value,
         opened_nodes: _opened_nodes,
         nodes_to_open: _nodes_to_open,
-    } = best_path(aa_id, interesting_nodes, &paths, 30_u16, 1);
+        ..
+    } = best_path(&nodes, aa_id, interesting_nodes, &paths, 30_u16, 1);
     #[cfg(test)]
     {
         println!(
@@ -114,10 +108,8 @@ pub fn part1(lines: &str) -> u32 {
                 .collect::<Vec<_>>()
                 .join(",")
         );
-        println!("value: {value}, rounds_left: {}, opened_nodes: {_opened_nodes:?}, nodes_to_open: {_nodes_to_open:?}", _paths
-        .first()
-        .unwrap()
-        .1);
+        println!("value: {value}, rounds_left1: {}, opened_nodes: {:?}, nodes_to_open: {_nodes_to_open:?}", 
+            _paths[0].1, _opened_nodes.into_iter().map(|(n,r,v)| (nodes[n].name.clone(),r,v)).collect::<Vec<_>>());
     }
     value
 }
@@ -145,37 +137,87 @@ struct PathState {
     value: u32,
     opened_nodes: Vec<(usize, u16, u32)>,
     nodes_to_open: BTreeSet<UnopenedNode>,
+    potential_value: u32,
 }
 
 impl PathState {
-    fn potential_value(&self) -> u32 {
-        // 5 rounds
-        // at round 1
-        // 2 valves left
-        // 1: 1 round to go A,
-        // 2: 1 round to enable A,
-        // 3: 1 round to go to B, (A flows)
-        // 4: 1 round to enable B, (A flows)
-        // 5: 1 round of A, B flowing
-        // 3*A + B
-        // (5 - 2) * A + (5 - 2 - 2)*B
-        self.value
-            + self
-                .nodes_to_open
+    fn human_readable(&self, nodes: &[Node]) -> String {
+        format!(
+            "path: {} value: {}, rounds_left1: {}, opened_nodes: {:?}, nodes_to_open: {:?}, potential_value: {}",
+            self.paths
+                .first()
+                .unwrap()
+                .0
                 .iter()
-                .enumerate()
-                .map(|(i, UnopenedNode(flow, _n))| {
-                    (self
-                        .paths
-                        .iter()
-                        .map(|(_p, rounds_left)| rounds_left)
-                        .sum::<u16>() as i32
-                        - (2 * i as i32))
-                        .max(0) as u32
-                        * flow
-                })
-                .sum::<u32>()
+                .map(|n| nodes[*n].name.to_string())
+                .collect::<Vec<_>>()
+                .join(","),
+            self.value,
+            self.paths[0].1,
+            self.opened_nodes
+                .iter()
+                .map(|(n, r, v)| (nodes[*n].name.clone(), r, v))
+                .collect::<Vec<_>>(),
+            self.nodes_to_open
+                .iter()
+                .map(|UnopenedNode(v, n)| (nodes[*n].name.clone(), v))
+                .collect::<Vec<_>>(),
+            self.potential_value
+        )
     }
+}
+
+#[test]
+fn test_potential_value() {
+    let res = get_potential_value(
+        0,
+        &BTreeSet::from([UnopenedNode(2, 1), UnopenedNode(3, 2)]),
+        &[(vec![0], 5)],
+    );
+    // 0
+    // 0
+    // 3
+    // 3
+    // 5
+    assert_eq!(res, 11);
+    let res = get_potential_value(9, &BTreeSet::from([UnopenedNode(2, 1)]), &[(vec![0, 2], 3)]);
+    // 0 - done
+    // 0 - done
+    // 3
+    // 3
+    // 5
+    assert_eq!(res, 11);
+    let res = get_potential_value(
+        0,
+        &BTreeSet::from([UnopenedNode(2, 1), UnopenedNode(3, 2)]),
+        &[(vec![0], 4)],
+    );
+    // 0
+    // 0
+    // 3
+    // 3
+    assert_eq!(res, 6);
+}
+
+fn get_potential_value(
+    value: u32,
+    nodes_to_open: &BTreeSet<UnopenedNode>,
+    paths: &[(Path, u16)],
+) -> u32 {
+    value
+        + nodes_to_open
+            .iter()
+            .enumerate()
+            .map(|(i, UnopenedNode(flow, _n))| {
+                (paths
+                    .iter()
+                    .map(|(_p, rounds_left)| rounds_left)
+                    .sum::<u16>() as i32
+                    - (2 * (i + 1) as i32))
+                    .max(0) as u32
+                    * flow
+            })
+            .sum::<u32>()
 }
 
 impl PartialOrd for PathState {
@@ -186,58 +228,74 @@ impl PartialOrd for PathState {
 
 impl Ord for PathState {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.potential_value().cmp(&other.potential_value())
+        self.potential_value.cmp(&other.potential_value)
     }
 }
 
 fn best_path(
+    nodes: &Vec<Node>,
     start: usize,
     interesting_nodes: BTreeSet<UnopenedNode>,
-    paths: &[Vec<Path>],
+    shortest_paths: &[Vec<Path>],
     starting_round: u16,
     num_explorers: u8,
 ) -> PathState {
+    let mut c = 100;
+    let past_paths = (0..num_explorers)
+        .map(|_| (vec![start], starting_round))
+        .collect::<Vec<_>>();
+    let potential_value = get_potential_value(0, &interesting_nodes, &past_paths);
     let mut to_explore = BinaryHeap::from([PathState {
-        paths: (0..num_explorers)
-            .map(|_| (vec![start], starting_round))
-            .collect(),
+        paths: past_paths,
         value: 0_u32,
         opened_nodes: Default::default(),
         nodes_to_open: interesting_nodes,
+        potential_value,
     }]);
     loop {
-        let Some(PathState{ paths: past_paths, value, opened_nodes, nodes_to_open }) = to_explore.pop() else {
+        let Some(p) = to_explore.pop() else {
                 unreachable!("we've ran out of paths, and none of them got to close all nodes?");
             };
-        if nodes_to_open.is_empty() {
-            // done, found the cheapest one
-            return PathState {
-                paths: past_paths,
-                value,
-                opened_nodes,
-                nodes_to_open,
-            };
+        if c > 0 {
+            c -= 1;
+            println!("{}", p.human_readable(nodes));
         }
-        for (current_path_index, (path, rounds_left)) in past_paths.iter().enumerate() {
-            let current_node = *path.last().unwrap();
-            if current_node == 0 && current_path_index == 1 && past_paths[0].0.len() == 1 {
-                // don't repeat the paths with 2 diff orders
-                continue;
+        if let Some(next_largest) = to_explore.peek() {
+            // done, found the cheapest one
+            if p.value > next_largest.potential_value && p.nodes_to_open.is_empty() {
+                println!("next_largest: {}", next_largest.human_readable(nodes));
+                return p;
             }
-            for next_node in nodes_to_open.iter().cloned() {
-                let mut next_nodes_to_open = nodes_to_open.clone();
+        }
+        for (current_path_index, (path, rounds_left)) in p.paths.iter().enumerate() {
+            let current_node = *path.last().unwrap();
+            /*if current_path_index == 1 && past_paths[0].0.len() != past_paths[1].0.len() + 1 {
+                // the second path should only grow when matching the first one, to avoid duplicates
+                continue;
+            }*/
+            for next_node in p.nodes_to_open.iter().cloned() {
+                /*if current_path_index == 1
+                    && past_paths[0].0.len() == 2
+                    && past_paths[0].0[1] >= next_node.1
+                {
+                    // avoid duplicate combinations, the second path must start
+                    // with a number larger than the one the first chooses
+                    continue;
+                }*/
+                let mut next_nodes_to_open = p.nodes_to_open.clone();
                 next_nodes_to_open.remove(&next_node);
-                let next_path = &paths[current_node][next_node.1];
+                let next_path = &shortest_paths[current_node][next_node.1];
                 let current_round_cost = 1 + (next_path.len() as u16 - 1);
 
                 let rounds_left = (*rounds_left as i32 - current_round_cost as i32).max(0) as u16;
                 let node_value = rounds_left as u32 * next_node.0;
-                let value = value + node_value;
+                let value = p.value + node_value;
 
-                let mut next_opened_nodes = opened_nodes.clone();
+                let mut next_opened_nodes = p.opened_nodes.clone();
                 next_opened_nodes.push((next_node.1, starting_round - rounds_left, node_value));
 
-                let past_paths = past_paths
+                let past_paths = p
+                    .paths
                     .iter()
                     .enumerate()
                     .map(|(i, past_path)| {
@@ -249,13 +307,15 @@ fn best_path(
                             past_path.clone()
                         }
                     })
-                    .collect();
+                    .collect::<Vec<_>>();
 
+                let potential_value = get_potential_value(value, &next_nodes_to_open, &past_paths);
                 to_explore.push(PathState {
                     paths: past_paths,
                     value,
                     opened_nodes: next_opened_nodes,
                     nodes_to_open: next_nodes_to_open,
+                    potential_value,
                 });
             }
         }
