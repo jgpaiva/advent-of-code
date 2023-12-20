@@ -34,7 +34,7 @@ pub fn part2(input: &str) -> usize {
     let mut r = String::new();
     let mut translator = HashMap::new();
 
-    let numbers = vec![
+    let numbers = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
     let digits: Vec<String> = (1..10).map(|n| n.to_string()).collect();

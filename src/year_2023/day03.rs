@@ -121,7 +121,7 @@ pub fn part2(input: &str) -> u32 {
 }
 
 fn save_num(
-    number_map: &mut Vec<Vec<Option<(u32, u64)>>>,
+    number_map: &mut [Vec<Option<(u32, u64)>>],
     curr_num: &mut Option<u32>,
     curr_num_size: &mut usize,
     i: usize,

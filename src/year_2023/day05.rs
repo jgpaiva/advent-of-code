@@ -13,12 +13,11 @@ fn test() {
 pub fn part1(input: &str) -> i64 {
     let lines = input.split("\n\n").collect::<Vec<&str>>();
     let seeds = lines[0]
-        .split_once(":")
+        .split_once(':')
         .unwrap()
         .1
-        .split(" ")
-        .map(|v| v.parse::<i64>().ok())
-        .flatten()
+        .split(' ')
+        .flat_map(|v| v.parse::<i64>().ok())
         .collect::<Vec<_>>();
     let input = &lines[1..];
     let input = parse_input(input);
@@ -40,14 +39,14 @@ pub fn part1(input: &str) -> i64 {
 
 fn parse_input(input: &[&str]) -> Vec<Vec<(i64, RangeInclusive<i64>)>> {
     input
-        .into_iter()
+        .iter()
         .map(|s| {
             let mut v = s
-                .split("\n")
+                .split('\n')
                 .skip(1)
                 .map(|line| {
                     let [destination, start, cnt] = line
-                        .split(" ")
+                        .split(' ')
                         .map(|v| v.parse::<i64>().unwrap())
                         .collect::<Vec<_>>()[..]
                     else {
@@ -65,12 +64,11 @@ fn parse_input(input: &[&str]) -> Vec<Vec<(i64, RangeInclusive<i64>)>> {
 pub fn part2(input: &str) -> i64 {
     let lines = input.split("\n\n").collect::<Vec<&str>>();
     let seeds = lines[0]
-        .split_once(":")
+        .split_once(':')
         .unwrap()
         .1
-        .split(" ")
-        .map(|v| v.parse::<i64>().ok())
-        .flatten()
+        .split(' ')
+        .flat_map(|v| v.parse::<i64>().ok())
         .collect::<Vec<_>>();
     let input = &lines[1..];
     let input = parse_input(input);

@@ -27,7 +27,7 @@ pub fn part1(input: &str) -> i32 {
 }
 
 fn parse_numbers(s: &str) -> HashSet<u32> {
-    s.split(" ").map(|s| s.parse::<u32>()).flatten().collect()
+    s.split(' ').flat_map(|s| s.parse::<u32>()).collect()
 }
 
 pub fn part2(input: &str) -> usize {
