@@ -30,12 +30,14 @@ fn days_2023(_skip_slow: bool) {
     use year_2023::day02;
     use year_2023::day03;
     use year_2023::day04;
+    use year_2023::day05;
     use year_2023::day08;
     println!("2023");
     day!(2023, day01);
     day!(2023, day02);
     day!(2023, day03);
     day!(2023, day04);
+    day!(2023, day05);
     day!(2023, day08);
 }
 
