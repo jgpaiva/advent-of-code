@@ -233,7 +233,7 @@ impl Ord for PathState {
 }
 
 fn best_path(
-    nodes: &Vec<Node>,
+    nodes: &[Node],
     start: usize,
     interesting_nodes: BTreeSet<UnopenedNode>,
     shortest_paths: &[Vec<Path>],
@@ -254,8 +254,8 @@ fn best_path(
     }]);
     loop {
         let Some(p) = to_explore.pop() else {
-                unreachable!("we've ran out of paths, and none of them got to close all nodes?");
-            };
+            unreachable!("we've ran out of paths, and none of them got to close all nodes?");
+        };
         if c > 0 {
             c -= 1;
             println!("{}", p.human_readable(nodes));

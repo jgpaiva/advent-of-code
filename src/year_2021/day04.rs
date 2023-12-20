@@ -19,7 +19,7 @@ pub fn part2(lines: String) -> i32 {
     for i in numbers {
         for (matrix_index, matrix) in matrices.iter_mut().enumerate() {
             for line in matrix.iter_mut() {
-                for mut item in line {
+                for item in line {
                     if item.n == i {
                         item.f = true;
                     }
@@ -63,7 +63,7 @@ pub fn part1(lines: String) -> i32 {
     for i in numbers {
         for matrix in matrices.iter_mut() {
             for line in matrix.iter_mut() {
-                for mut item in line {
+                for item in line {
                     if item.n == i {
                         item.f = true;
                     }

@@ -246,10 +246,7 @@ fn parse(input: String) -> Vec<HashSet<(i32, i32, i32)>> {
             } else {
                 let acc_len = acc.len();
                 let scanner = &mut acc[acc_len - 1];
-                let mut it = line
-                    .split_terminator(',')
-                    .into_iter()
-                    .map(|v| v.parse().unwrap());
+                let mut it = line.split_terminator(',').map(|v| v.parse().unwrap());
                 let point: (i32, i32, i32) =
                     (it.next().unwrap(), it.next().unwrap(), it.next().unwrap());
                 assert!(it.next().is_none());

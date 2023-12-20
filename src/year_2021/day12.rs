@@ -28,8 +28,8 @@ fn part2_route_validator(route: &[Node], n: Node) -> bool {
     {
         *(counter.entry(node).or_insert(0)) += 1
     }
-    counter.values().into_iter().filter(|x| **x > 2).count() == 0
-        && counter.values().into_iter().filter(|x| **x == 2).count() <= 1
+    counter.values().filter(|x| **x > 2).count() == 0
+        && counter.values().filter(|x| **x == 2).count() <= 1
 }
 
 pub fn part1(input: String) -> u32 {
@@ -48,7 +48,7 @@ fn part1_route_validator(route: &[Node], n: Node) -> bool {
     {
         *(counter.entry(node).or_insert(0)) += 1
     }
-    counter.values().into_iter().filter(|x| **x > 1).count() == 0
+    counter.values().filter(|x| **x > 1).count() == 0
 }
 
 fn find_routes(
@@ -71,7 +71,7 @@ fn find_routes(
             find_routes(
                 n,
                 edges,
-                route.iter().cloned().chain([n].into_iter()).collect(),
+                route.iter().cloned().chain([n]).collect(),
                 route_validator,
             )
         })
@@ -107,8 +107,8 @@ fn create_graph(input: String) -> HashMap<Node, Vec<Node>> {
             is_start: x2 == "start",
             is_end: x2 == "end",
         };
-        edges.entry(x1).or_insert_with(Vec::new).push(x2);
-        edges.entry(x2).or_insert_with(Vec::new).push(x1);
+        edges.entry(x1).or_default().push(x2);
+        edges.entry(x2).or_default().push(x1);
     }
     edges
 }

@@ -14,7 +14,7 @@ pub fn part2(lines: &str) -> u32 {
     let file_tree = create_file_tree(lines);
     let mut sizes = HashMap::new();
     let root_size = calc_sizes("/".to_string(), &file_tree, &mut sizes);
-    let mut sizes: Vec<_> = sizes.into_iter().map(|(_k, v)| v).collect();
+    let mut sizes: Vec<_> = sizes.values().cloned().collect();
     sizes.sort();
     for size in sizes.into_iter() {
         if root_size - size <= 40000000 {
@@ -28,11 +28,7 @@ pub fn part1(lines: &str) -> u32 {
     let file_tree = create_file_tree(lines);
     let mut sizes = HashMap::new();
     calc_sizes("/".to_string(), &file_tree, &mut sizes);
-    sizes
-        .into_iter()
-        .map(|(_k, v)| v)
-        .filter(|v| *v < 100000)
-        .sum()
+    sizes.values().filter(|v| **v < 100000).sum()
 }
 
 #[derive(Debug)]

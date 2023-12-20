@@ -102,7 +102,6 @@ impl Cube {
                     })
                 })
             })
-            .into_iter()
             .collect()
     }
 }

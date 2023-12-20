@@ -79,7 +79,7 @@ pub fn part1(lines: &str) -> i32 {
     let commands = parse_input(lines);
     let mut x = 1;
     let mut cycle = 0;
-    let values = vec![20, 60, 100, 140, 180, 220];
+    let values = [20, 60, 100, 140, 180, 220];
     let mut res = vec![];
     for c in commands {
         let cycles = match c {

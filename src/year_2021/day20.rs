@@ -148,7 +148,7 @@ fn add_border(image: Vec<Vec<bool>>, value: bool) -> Vec<Vec<bool>> {
     }
     (0..3)
         .map(|_| vec![value; image_len_j])
-        .chain(image.into_iter())
+        .chain(image)
         .chain((0..3).map(|_| vec![value; image_len_j]))
         .map(|line| {
             (0..3)

@@ -18,7 +18,7 @@ pub fn part2(lines: &str) -> usize {
         .map(|line| line.parse().unwrap())
         .collect();
 
-    let mut tail_pos = vec![(0, 0); 9];
+    let mut tail_pos = [(0, 0); 9];
     let mut head_pos = (0, 0);
     let mut all_tail_pos: HashSet<(i32, i32)> = HashSet::new();
     all_tail_pos.insert((0, 0));

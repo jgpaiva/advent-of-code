@@ -46,6 +46,7 @@ pub fn part2(lines: &str) -> i32 {
 }
 
 #[derive(PartialEq, Eq)]
+#[allow(clippy::upper_case_acronyms)]
 enum RPS {
     Rock,
     Paper,
