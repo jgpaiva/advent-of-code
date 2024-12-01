@@ -36,6 +36,8 @@ fn days_2023(_skip_slow: bool) {
     day!(2023, day06);
     day!(2023, day07);
     day!(2023, day08);
+    day!(2023, day09);
+    day!(2023, day10);
 }
 
 fn days_2022(skip_slow: bool) {

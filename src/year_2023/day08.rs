@@ -111,7 +111,9 @@ pub fn part2(input: &str) -> u32 {
 
         }*/
     }
-    unreachable!()
+    // unreachable!()
+    // this one is unsolved
+    0
 }
 
 fn parse_input(input: &[&str]) -> HashMap<String, (String, String)> {
