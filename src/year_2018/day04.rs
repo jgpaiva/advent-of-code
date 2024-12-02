@@ -77,9 +77,7 @@ pub fn day04(lines: Vec<String>) -> String {
     let mut sleeper_per_minute: HashMap<i32, HashMap<i32, i32>> = HashMap::new();
     for cycle in &sleep_cycles {
         for minute in cycle.start..cycle.end {
-            let per_id_counter = sleeper_per_minute
-                .entry(minute)
-                .or_insert_with(HashMap::new);
+            let per_id_counter = sleeper_per_minute.entry(minute).or_default();
             let counter = per_id_counter.entry(cycle.id).or_insert(0);
             *counter += 1;
         }

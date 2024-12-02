@@ -45,7 +45,7 @@ pub fn metadata_for_sub_tree(node: usize, input: &[i32]) -> (usize, usize, usize
     for _ in 0..n_children {
         let (size, metadata, metadata_v2) = metadata_for_sub_tree(current_child, input);
         current_child += size;
-        child_metadata += metadata as usize;
+        child_metadata += metadata;
         child_size += size;
         child_metadata_v2.push(metadata_v2 as i32);
     }

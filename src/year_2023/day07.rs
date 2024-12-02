@@ -62,7 +62,7 @@ fn rank(hand: &[u32]) -> u32 {
         return 1;
     }
     if m.len() == 4 {
-        if m.get(&1).is_some() {
+        if m.contains_key(&1) {
             return 4;
         }
         return 2;
@@ -70,7 +70,7 @@ fn rank(hand: &[u32]) -> u32 {
     if m.len() == 3 {
         for (_k, v) in m.iter() {
             if *v == 3 {
-                if m.get(&1).is_some() {
+                if m.contains_key(&1) {
                     return 6;
                 }
                 return 4;
@@ -85,7 +85,7 @@ fn rank(hand: &[u32]) -> u32 {
         return 3;
     }
     // len == 2
-    if m.get(&1).is_some() {
+    if m.contains_key(&1) {
         return 7;
     }
     for (_k, v) in m {

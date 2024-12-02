@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use itertools::Itertools;
 
 #[cfg(test)]
@@ -22,7 +24,7 @@ pub fn part2(lines: &str) -> i32 {
 
     #[cfg(test)]
     {
-        println!("{}", map.to_string(),);
+        println!("{}", map,);
         dbg!(&result);
         dbg!(&right_hand_side);
         dbg!(&left_hand_side);
@@ -163,18 +165,21 @@ impl Map {
     }
 }
 
-impl ToString for Map {
-    fn to_string(&self) -> String {
-        self.m
-            .iter()
-            .map(|line| {
-                line.iter()
-                    .map(|el| el.to_string())
-                    .collect::<Vec<String>>()
-                    .join("")
-            })
-            .collect::<Vec<String>>()
-            .join("\n")
+impl Display for Map {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            &self
+                .m
+                .iter()
+                .map(|line| {
+                    line.iter()
+                        .map(|el| el.to_string())
+                        .collect::<Vec<String>>()
+                        .join("")
+                })
+                .collect::<Vec<String>>()
+                .join("\n"),
+        )
     }
 }
 
@@ -185,14 +190,13 @@ enum El {
     CurrentSand,
 }
 
-impl ToString for El {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for El {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
             El::Air => " ",
             El::Rock => "#",
             El::Sand => "o",
             El::CurrentSand => "x",
-        }
-        .to_string()
+        })
     }
 }

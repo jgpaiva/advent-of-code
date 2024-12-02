@@ -75,8 +75,7 @@ pub fn part1(lines: Vec<String>) -> String {
             *accum.entry(item).or_insert(0) += 1;
             accum
         })
-        .into_iter()
-        .map(|(_k, v)| v)
+        .into_values()
         .max()
         .unwrap()
         .to_string()

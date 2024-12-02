@@ -45,7 +45,7 @@ pub fn part2(input: &str) -> i32 {
     let (l_input, r_input) = parse_input(input);
     let mut r_map = HashMap::new();
     for i in r_input {
-        let entry = r_map.entry(i).or_insert(0);
+        let entry = r_map.entry(i).or_default();
         *entry += 1;
     }
     l_input

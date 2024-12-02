@@ -35,7 +35,7 @@ pub fn part1(input: String, days: i32) -> i32 {
     let mut start: i32 = -5;
     values = (0..5)
         .map(|_| false)
-        .chain(values.into_iter())
+        .chain(values)
         .chain((0..5).map(|_| false))
         .collect();
     for _ in 0..days {

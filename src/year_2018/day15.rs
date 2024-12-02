@@ -1,4 +1,7 @@
-use std::collections::{HashSet, VecDeque};
+use std::{
+    collections::{HashSet, VecDeque},
+    fmt::Display,
+};
 
 #[cfg(test)]
 use crate::utils;
@@ -62,8 +65,8 @@ enum MoveOutcome {
     MoveTo(Option<(usize, usize)>),
 }
 
-impl ToString for Board {
-    fn to_string(&self) -> String {
+impl Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut stats = vec![];
         let board = self
             .b
@@ -81,15 +84,17 @@ impl ToString for Board {
                 El::Empty => '.',
             })
             .collect::<Vec<_>>();
-        (0..self.height)
-            .map(|y| {
-                (0..self.width)
-                    .map(|x| board[y * self.width + x])
-                    .collect::<String>()
-            })
-            .chain([stats.join(" ")].into_iter())
-            .collect::<Vec<String>>()
-            .join("\n")
+        f.write_str(
+            &(0..self.height)
+                .map(|y| {
+                    (0..self.width)
+                        .map(|x| board[y * self.width + x])
+                        .collect::<String>()
+                })
+                .chain([stats.join(" ")])
+                .collect::<Vec<String>>()
+                .join("\n"),
+        )
     }
 }
 

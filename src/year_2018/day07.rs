@@ -21,13 +21,14 @@ lazy_static! {
 
 pub fn part2(lines: &[String], worker_n: usize, sleep_time: i32) -> i32 {
     let input = parse(lines);
-    let mut deps = input.deps.iter().fold(HashMap::new(), |mut accum, d| {
-        accum
-            .entry(d.from)
-            .or_insert_with(HashSet::new)
-            .insert(d.to);
-        accum
-    });
+    let mut deps =
+        input
+            .deps
+            .iter()
+            .fold(HashMap::new(), |mut accum: HashMap<_, HashSet<_>>, d| {
+                accum.entry(d.from).or_default().insert(d.to);
+                accum
+            });
     for i in deps.values().flatten().copied().collect::<Vec<char>>() {
         deps.entry(i).or_insert_with(HashSet::new);
     }
@@ -186,9 +187,7 @@ fn visit(
     }
 
     visiting.insert(node);
-    let mut node_s_edges: Vec<char> = edges
-        .get(&node)
-        .unwrap_or(&vec![]).to_vec();
+    let mut node_s_edges: Vec<char> = edges.get(&node).unwrap_or(&vec![]).to_vec();
     node_s_edges.sort_unstable();
     for node in node_s_edges {
         visit(node, visiting, open_nodes, output, edges);
