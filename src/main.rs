@@ -10,6 +10,9 @@ mod year_2022 {
 mod year_2023 {
     automod::dir!(pub "src/year_2023");
 }
+mod year_2024 {
+    automod::dir!(pub "src/year_2024");
+}
 
 mod utils;
 use utils::*;
@@ -17,12 +20,19 @@ use utils::*;
 fn main() {
     let skip_slow = true;
     let skip_old_years = true;
-    days_2023(skip_slow);
+    days_2024(skip_slow);
     if !skip_old_years {
         days_2022(skip_slow);
         days_2021(skip_slow);
         days_2018(skip_slow);
+        days_2023(skip_slow);
     }
+}
+
+fn days_2024(_skip_slow: bool) {
+    use year_2024::*;
+    println!("2024");
+    day!(2024, day01);
 }
 
 fn days_2023(_skip_slow: bool) {

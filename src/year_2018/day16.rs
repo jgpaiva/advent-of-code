@@ -73,6 +73,7 @@ fn test() {
     assert_eq!(part1(input), 2);
 }
 
+#[allow(unused)]
 enum Op {
     Addr(usize, usize, usize),
     Addi(usize, usize, usize),
