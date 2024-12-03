@@ -34,6 +34,7 @@ fn days_2024(_skip_slow: bool) {
     println!("2024");
     day!(2024, day01);
     day!(2024, day02);
+    day!(2024, day03);
 }
 
 fn days_2023(_skip_slow: bool) {
