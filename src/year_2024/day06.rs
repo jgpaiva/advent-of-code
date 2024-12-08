@@ -85,8 +85,8 @@ pub fn find_path(input: &str) -> Result<i32, ()> {
                     direction = Direction::Right;
                 } else {
                     // no obstacle in the way, done
-                    let item_i = p.1;
-                    move_p(&mut p, (0, item_i), direction)?;
+                    let column = p.1;
+                    move_p(&mut p, (0, column), direction)?;
                     break;
                 }
             }
@@ -102,8 +102,8 @@ pub fn find_path(input: &str) -> Result<i32, ()> {
                     direction = Direction::Left;
                 } else {
                     // no obstacle in the way, done
-                    let item_i = p.1;
-                    move_p(&mut p, (input.len() - 1, item_i), direction)?;
+                    let column = p.1;
+                    move_p(&mut p, (input.len() - 1, column), direction)?;
                     break;
                 }
             }
