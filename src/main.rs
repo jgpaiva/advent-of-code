@@ -29,7 +29,7 @@ fn main() {
     }
 }
 
-fn days_2024(_skip_slow: bool) {
+fn days_2024(skip_slow: bool) {
     use year_2024::*;
     println!("2024");
     day!(2024, day01);
@@ -37,7 +37,10 @@ fn days_2024(_skip_slow: bool) {
     day!(2024, day03);
     day!(2024, day04);
     day!(2024, day05);
-    day!(2024, day06);
+    if !skip_slow {
+        day!(2024, day06);
+    }
+    day!(2024, day07);
 }
 
 fn days_2023(_skip_slow: bool) {
