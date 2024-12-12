@@ -42,6 +42,7 @@ fn days_2024(skip_slow: bool) {
     }
     day!(2024, day07);
     day!(2024, day08);
+    day!(2024, day09);
 }
 
 fn days_2023(_skip_slow: bool) {
